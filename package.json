@@ -1,0 +1,13 @@
+{
+  "name": "1inch-order",
+  "version": "1.0.0",
+  "description": "1 inch limit order extension",
+  "main": "index.js",
+  "author": "youtpout",
+  "license": "BSL-1.0",
+  "private": true,
+  "workspaces": [
+    "contracts",
+    "frontend"
+  ]
+}
