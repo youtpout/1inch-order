@@ -16,7 +16,5 @@
     "hardhat": "^3.0.0-next.25",
     "mocha": "^11.7.1",
     "typescript": "~5.8.0"
-  },
-  "dependencies": {
   }
 }

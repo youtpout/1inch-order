@@ -9,14 +9,9 @@ import {ERC721Proxy} from "./ERC721Proxy.sol";
 /// @notice Contract designed to sell Uniswap v3 compatible ERC721 Position
 /// Based on 1inch proxy ERC721 proxy
 contract PositionOrder is ERC721Proxy {
-    address public immutable platformFeeReceiver;
-    uint256 public constant FEE_BPS = 10; // 0.1%
-
     constructor(
-        address _platformFeeReceiver,
         address _immutableOwner
     ) ERC721Proxy(_immutableOwner) {
-        positionManager platformFeeReceiver = _platformFeeReceiver;
     }
 
     /// @notice Post interaction to collect maker fees on position
