@@ -1,33 +1,10 @@
 pragma solidity ^0.8.28;
 
-import {IERC20} from "./IERC20.sol";
-import {IERC721} from "./IERC721.sol";
+import {IERC20} from "./interfaces/IERC20.sol";
+import {IERC721} from "./interfaces/IERC721.sol";
+import {INonfungiblePositionManager} from "./interfaces/INonfungiblePositionManager.sol";
+import {AggregatorV3Interface} from "./interfaces/AggregatorV3Interface.sol";
 import {ERC721Proxy} from "./ERC721Proxy.sol";
-
-interface INonfungiblePositionManager is IERC721 {
-    struct CollectParams {
-        uint256 tokenId;
-        address recipient;
-        uint128 amount0Max;
-        uint128 amount1Max;
-    }
-    function collect(
-        CollectParams calldata params
-    ) external payable returns (uint256 amount0, uint256 amount1);
-}
-
-interface IAggregatorV3 {
-    function latestRoundData()
-        external
-        view
-        returns (
-            uint80 roundId,
-            int256 answer,
-            uint256 startedAt,
-            uint256 updatedAt,
-            uint80 answeredInRound
-        );
-}
 
 /// @notice Contract designed to sell Uniswap v3 compatible ERC721 Position
 /// Based on 1inch proxy ERC721 proxy
@@ -43,7 +20,10 @@ contract PositionOrder is ERC721Proxy {
     }
 
     /// @notice Post interaction to collect maker fees on position
-    function collectFees(address _positionManager, uint256 _tokenId) external onlyImmutableOwner {
+    function collectFees(
+        address _positionManager,
+        uint256 _tokenId
+    ) external onlyImmutableOwner {
         INonfungiblePositionManager positionManager = INonfungiblePositionManager(
                 _positionManager
             );
@@ -63,7 +43,7 @@ contract PositionOrder is ERC721Proxy {
     /// @notice Predicate function to get asset price to easily create stop loss order
     /// @dev Can be used via predicate builder as a call to this contract
     function getPrice(address chainlinkOracle) external view returns (int256) {
-        (, int256 answer, , , ) = IAggregatorV3(chainlinkOracle)
+        (, int256 answer, , , ) = AggregatorV3Interface(chainlinkOracle)
             .latestRoundData();
         return answer;
     }
