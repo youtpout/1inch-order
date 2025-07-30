@@ -3,7 +3,7 @@ pragma solidity ^0.8.28;
 import {IERC20} from "./interfaces/IERC20.sol";
 import {IERC721} from "./interfaces/IERC721.sol";
 import {INonfungiblePositionManager} from "./interfaces/INonfungiblePositionManager.sol";
-import {AggregatorV3Interface} from "./interfaces/AggregatorV3Interface.sol";
+import {AggregatorInterface} from "./interfaces/AggregatorInterface.sol";
 import {ERC721Proxy} from "./ERC721Proxy.sol";
 import {IPreInteraction} from "./interfaces/IPreInteraction.sol";
 
@@ -44,13 +44,11 @@ contract PositionOrder is ERC721Proxy, IPreInteraction {
         positionManager.collect(collectParams);
     }
 
-   
-
     /// @notice Predicate function to get asset price to easily create stop loss order
     /// @dev Can be used via predicate builder as a call to this contract
-    function getPrice(address chainlinkOracle) external view returns (int256) {
-        (, int256 answer, , , ) = AggregatorV3Interface(chainlinkOracle)
-            .latestRoundData();
-        return answer;
+    function getPrice(address oracle) external view returns (uint256) {
+        int256 answer = AggregatorInterface(oracle).latestAnswer();
+        require(answer > 0, "Negative number");
+        return uint256(answer);
     }
 }
