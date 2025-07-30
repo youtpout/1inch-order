@@ -51,10 +51,11 @@ contract PositionOrder is ERC721Proxy, IPreInteraction {
         uint8 tokenDecimals
     ) external view returns (uint256) {
         int256 answer = AggregatorV3Interface(oracle).latestAnswer();
-        require(answer > 0, "Negative number");
+        require(answer > 0, "Negative price");
         uint8 decimals = AggregatorV3Interface(oracle).decimals();
-        uint256 price = (uint256(answer) * 10 ** tokenDecimals) /
-            10 ** decimals;
+        uint256 price = tokenDecimals > decimals
+            ? uint256(answer) * 10 ** (tokenDecimals - decimals)
+            : uint256(answer) / 10 ** (decimals - tokenDecimals);
         return price;
     }
 }
