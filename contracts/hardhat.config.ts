@@ -1,8 +1,12 @@
 import type { HardhatUserConfig } from "hardhat/config";
-
+import hardhatVerify from "@nomicfoundation/hardhat-verify";
 import hardhatToolboxMochaEthersPlugin from "@nomicfoundation/hardhat-toolbox-mocha-ethers";
 import { configVariable } from "hardhat/config";
+import hardhatIgnition from "@nomicfoundation/hardhat-ignition";
 
+import dotenv from 'dotenv'
+
+dotenv.config();
 const config: HardhatUserConfig = {
   /*
    * In Hardhat 3, plugins are defined as part of the Hardhat config instead of
@@ -11,7 +15,7 @@ const config: HardhatUserConfig = {
    * Note: A `hardhat-toolbox` like plugin for Hardhat 3 hasn't been defined yet,
    * so this list is larger than what you would normally have.
    */
-  plugins: [hardhatToolboxMochaEthersPlugin],
+  plugins: [hardhatVerify, hardhatIgnition],
   solidity: {
     /*
      * Hardhat 3 supports different build profiles, allowing you to configure
@@ -77,6 +81,17 @@ const config: HardhatUserConfig = {
       chainType: "l1",
       url: configVariable("SEPOLIA_RPC_URL"),
       accounts: [configVariable("SEPOLIA_PRIVATE_KEY")],
+    },
+    arbitrum: {
+      type: "http",
+      chainType: "l1",
+      url: "https://arbitrum.drpc.org",
+      accounts: [process.env.SIGNER!]
+    }
+  },
+  verify: {
+    etherscan: {
+      apiKey: process.env.ETHERSCAN_VERIFIER!,
     },
   },
 };
