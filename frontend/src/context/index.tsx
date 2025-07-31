@@ -40,14 +40,13 @@ function ContextProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div>
-      <div className='flex-row'>
-        <IconButton onClick={goHome}>
-          <HomeIcon />
-        </IconButton>
-        <appkit-button />
+    <div className='website-content'>
+      <div className='website-container'>
+        <div className='flex-row' style={{ justifyContent: "flex-end" }}>
+          <appkit-button />
+        </div>
+        <div>{children}</div>
       </div>
-      <div>{children}</div>
     </div>
   )
 }

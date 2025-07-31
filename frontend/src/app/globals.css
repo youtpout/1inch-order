@@ -120,3 +120,16 @@ pre {
   flex-direction: column;
   flex-wrap: wrap;
 }
+
+.website-content{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding:  10px 0;
+
+}
+
+.website-container{
+  max-width: 1600px;
+  width: 90vw;
+}
