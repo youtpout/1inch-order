@@ -1,5 +1,5 @@
-import { Address, Api, LimitOrder, Pager } from "@1inch/limit-order-sdk"
-import { AxiosProviderConnector } from '@1inch/limit-order-sdk/axios'
+import { CustomAxiosProviderConnector } from "@/utils/AxiosProviderConnector";
+import { Address, Api, AuthError, Extension, LimitOrder, LimitOrderWithFee, Pager, Sdk } from "@1inch/limit-order-sdk"
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
         const api = new Api({
             authKey: process.env.INCH_KEY!,
             networkId: 42161,
-            httpConnector: new AxiosProviderConnector(),
+            httpConnector: new CustomAxiosProviderConnector(),
         });
 
         const orders = await api.getOrdersByMaker(new Address(address), { pager: new Pager({ limit: 100, page: 1 }), statuses: [1, 2, 3] });
@@ -33,8 +33,10 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
 
         const order: string = body.order;
+        const extension: string = body.extension;
+        const signature: string = body.signature;
 
-        console.log("order", order);
+
 
         if (!order || typeof order !== 'string') {
             return NextResponse.json(
@@ -42,13 +44,29 @@ export async function POST(req: NextRequest) {
                 { status: 400 }
             );
         }
+        console.log("order", order);
+        console.log("signature", signature);
+        console.log("extension", extension);
 
-        console.log("Received order:", order);
+        const api = new Sdk({
+            authKey: process.env.INCH_KEY!,
+            networkId: 42161,
+            httpConnector: new CustomAxiosProviderConnector(),
+        });
+
+        const des = JSON.parse(order);
+        const ext = Extension.decode(extension);
+        const newLimitOrder = LimitOrderWithFee.fromDataAndExtension(des, ext);
+
+        console.log("newLimitOrder", newLimitOrder)
+
+        await api.submitOrder(newLimitOrder, signature);
+
 
         // Tu peux ici traiter ou décoder l'ordre (par exemple, JSON.parse(order) si c'est un JSON encodé)
         // const parsedOrder = JSON.parse(order);
 
-        return NextResponse.json({ message: 'Order received successfully', order });
+        return NextResponse.json({ message: 'Order received successfully' });
     } catch (err) {
         console.error("POST /api/order error:", err);
         return NextResponse.json(

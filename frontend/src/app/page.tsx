@@ -1,8 +1,6 @@
 "use client";
 
-import { ConnectButton } from "@/components/ConnectButton";
-import { InfoList } from "@/components/InfoList";
-import { ActionButtonList } from "@/components/ActionButtonList";
+import "./page.scss";
 import Image from 'next/image';
 import { Button, Card, CardActions, CardContent, FormControl, FormHelperText, InputBase, InputLabel, MenuItem, Select, SelectChangeEvent, styled, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -23,15 +21,15 @@ import {
 import INONFUNGIBLE_POSITION_MANAGER from '@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
 import FACTORY_V3 from '@uniswap/v3-core/artifacts/contracts/UniswapV3Factory.sol/UniswapV3Factory.json'
 import POOL_V3 from '@uniswap/v3-core/artifacts/contracts/UniswapV3Pool.sol/UniswapV3Pool.json'
-import Position from "./position";
+import Position from "@/components/Position";
+import { arbitrum } from '@reown/appkit/networks'
 
 export default function Home() {
   const [platform, setPlatform] = useState(managers[0].dex);
+  const [manager, setManager] = useState(managers[0].manager);
   const [list, setList] = useState<any[]>([]);
   // AppKit hook to get the address and check if the user is connected
   const { address, isConnected } = useAppKitAccount();
-  // AppKit hook to get the chain id
-  const { chainId } = useAppKitNetworkCore();
   // AppKit hook to get the wallet provider
   const { walletProvider } = useAppKitProvider<Provider>("eip155");
 
@@ -47,7 +45,7 @@ export default function Home() {
   }, [platform, address])
 
   const handleGetBalance = async () => {
-    const provider = new BrowserProvider(walletProvider, chainId);
+    const provider = new BrowserProvider(walletProvider, arbitrum.id);
     const balance = await provider.getBalance(address!);
     const eth = formatEther(balance);
     console.log(`${eth} ETH`);
@@ -64,12 +62,13 @@ export default function Home() {
   async function getPositions() {
     try {
       let selectedDex = managers.find(x => x.dex === platform);
-      if (chainId && selectedDex) {
-        const provider = new BrowserProvider(walletProvider, chainId);
+      if (selectedDex) {
+        const provider = new BrowserProvider(walletProvider, arbitrum.id);
 
 
         let managerAddress = selectedDex.manager;
         let factoryAddress = selectedDex.factory;
+        setManager(managerAddress);
 
         const nfpmContract = new ethers.Contract(
           managerAddress,
@@ -154,7 +153,7 @@ export default function Home() {
           <div className="position">
             {list?.length ? <h3>Active positions : </h3> : <div></div>}
             {list.map(x => <div key={x.index} className='list-element metadata'>
-              <Position nft={x} ></Position>
+              <Position nft={x} manager={manager} ></Position>
             </div>)}
           </div>
         </CardContent>

@@ -1,6 +1,5 @@
 'use client'
 
-import "./page.scss";
 import { useEffect, useState } from "react";
 
 import { Alert, Box, Button, FormControl, IconButton, InputLabel, Modal, NativeSelect, Snackbar, TextField } from "@mui/material";
@@ -12,8 +11,9 @@ import {
     useAppKitNetworkCore,
     type Provider,
 } from "@reown/appkit/react";
+import { CreateOrder } from "./CreateOrder";
 
-export default function Position({ defaultAsset, funds, nft, chain, showMessage }: any) {
+export default function Position({ manager, nft, chain }: any) {
 
     // AppKit hook to get the address and check if the user is connected
     const { address, isConnected } = useAppKitAccount();
@@ -36,6 +36,9 @@ export default function Position({ defaultAsset, funds, nft, chain, showMessage 
                     <h3>
                         {nft.metadata.name}
                     </h3>
+                    <div>
+                        <CreateOrder tokenId={nft.tokenId} manager={manager}></CreateOrder>
+                    </div>
                 </div>
             </div>
         </>
