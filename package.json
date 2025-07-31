@@ -9,5 +9,9 @@
   "workspaces": [
     "contracts",
     "frontend"
-  ]
+  ],
+   "scripts": {
+        "compile": "yarn workspace contracts compile",
+        "test": "yarn workspace contracts test"
+    }
 }

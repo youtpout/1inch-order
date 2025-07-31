@@ -12,6 +12,10 @@ contract FakeManager is ERC721 {
         _;
     }
 
+    function mint(address to, uint256 id) external {
+        _mint(to, id);
+    }
+
     function collect(
         INonfungiblePositionManager.CollectParams calldata params
     )
