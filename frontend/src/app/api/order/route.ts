@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
         console.log("signature", signature);
         console.log("extension", extension);
 
-        const api = new Sdk({
+        const api = new Api({
             authKey: process.env.INCH_KEY!,
             networkId: 42161,
             httpConnector: new CustomAxiosProviderConnector(),
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
 
         const des = JSON.parse(order);
         const ext = Extension.decode(extension);
-        const newLimitOrder = LimitOrderWithFee.fromDataAndExtension(des, ext);
+        const newLimitOrder = LimitOrder.fromDataAndExtension(des, ext);
 
         console.log("newLimitOrder", newLimitOrder)
 
