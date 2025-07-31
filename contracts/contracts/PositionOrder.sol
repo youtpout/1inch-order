@@ -44,13 +44,18 @@ contract PositionOrder is ERC721Proxy, IPreInteraction {
         positionManager.collect(collectParams);
     }
 
-   
-
     /// @notice Predicate function to get asset price to easily create stop loss order
     /// @dev Can be used via predicate builder as a call to this contract
-    function getPrice(address chainlinkOracle) external view returns (int256) {
-        (, int256 answer, , , ) = AggregatorV3Interface(chainlinkOracle)
-            .latestRoundData();
-        return answer;
+    function getPrice(
+        address oracle,
+        uint8 tokenDecimals
+    ) external view returns (uint256) {
+        int256 answer = AggregatorV3Interface(oracle).latestAnswer();
+        require(answer > 0, "Negative price");
+        uint8 decimals = AggregatorV3Interface(oracle).decimals();
+        uint256 price = tokenDecimals > decimals
+            ? uint256(answer) * 10 ** (tokenDecimals - decimals)
+            : uint256(answer) / 10 ** (decimals - tokenDecimals);
+        return price;
     }
 }

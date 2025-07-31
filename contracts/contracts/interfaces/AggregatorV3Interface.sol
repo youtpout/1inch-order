@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import "./AggregatorInterface.sol";
+
 // solhint-disable-next-line interface-starts-with-i
-interface AggregatorV3Interface {
+interface AggregatorV3Interface is AggregatorInterface {
     function decimals() external view returns (uint8);
 
     function description() external view returns (string memory);

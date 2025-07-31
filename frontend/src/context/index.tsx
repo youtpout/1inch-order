@@ -3,6 +3,8 @@
 import { ethersAdapter, projectId, networks } from '@/config'
 import { createAppKit } from '@reown/appkit/react'
 import React, { type ReactNode } from 'react'
+import { IconButton } from '@mui/material'
+import HomeIcon from '@mui/icons-material/Home';
 
 if (!projectId) {
   throw new Error('Project ID is not defined')
@@ -10,8 +12,8 @@ if (!projectId) {
 
 // Set up metadata
 const metadata = {
-  name: 'next-reown-appkit',
-  description: 'next-reown-appkit',
+  name: 'Position Order',
+  description: 'Create stop loss order on your position',
   url: 'https://github.com/0xonerb/next-reown-appkit-ssr', // origin must match your domain & subdomain
   icons: ['https://avatars.githubusercontent.com/u/179229932']
 }
@@ -31,9 +33,21 @@ export const modal = createAppKit({
   }
 })
 
-function ContextProvider({ children }: { children: ReactNode}) {
+function ContextProvider({ children }: { children: ReactNode }) {
+  //const router = useRouter()
+  function goHome() {
+    //router.push("/");
+  }
+
   return (
-    <>{children}</>
+    <div className='website-content'>
+      <div className='website-container'>
+        <div className='flex-row' style={{ justifyContent: "flex-end" }}>
+          <appkit-button />
+        </div>
+        <div>{children}</div>
+      </div>
+    </div>
   )
 }
 
