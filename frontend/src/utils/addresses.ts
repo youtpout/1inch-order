@@ -4,8 +4,8 @@ export const proxy = "0x99acae685b4d8d214a9a5db7775487e10167279a";
 export const lop = "0x111111125421ca6dc452d289314280a0f8842a65";
 
 export const managers = [
-    { dex: "Uniswap", address: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88" },
-    { dex: "PancakeSwap", address: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364" }
+    { dex: "Uniswap", manager: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88", factory: "0x1F98431c8aD98523631AE4a59f267346ea31F984" },
+    { dex: "PancakeSwap", manager: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364", factory: "0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865" }
 ];
 
 export type tokenInfo = {

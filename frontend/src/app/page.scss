@@ -1,0 +1,40 @@
+.position {
+
+    display: flex;
+    flex-direction: column;
+
+
+    .metadata {
+        border-radius: 10px;
+        //border: 1px solid gray;
+        padding: 10px;
+        margin: 10px;
+        flex: 1;
+
+        h3,
+        h4,
+        div {
+            margin-bottom: 10px;
+
+        }
+
+        .nft-image {
+            display: flex;
+            flex-direction: row;
+
+            img {
+                height: 150px;
+                margin-right: 10px;
+            }
+
+            .nft-info {
+                display: flex;
+                flex-direction: column;
+            }
+        }
+    }
+
+
+
+
+}
