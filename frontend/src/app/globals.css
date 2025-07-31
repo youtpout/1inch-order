@@ -107,3 +107,16 @@ pre {
    margin-bottom: 10px;
    line-height: 25px;
 }
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.flex-col,
+.flex-column {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+}

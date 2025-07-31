@@ -12,6 +12,7 @@
   ],
    "scripts": {
         "compile": "yarn workspace contracts compile",
-        "test": "yarn workspace contracts test"
+        "test": "yarn workspace contracts test",
+        "dev": "yarn workspace frontend dev"
     }
 }

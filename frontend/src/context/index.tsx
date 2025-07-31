@@ -3,6 +3,8 @@
 import { ethersAdapter, projectId, networks } from '@/config'
 import { createAppKit } from '@reown/appkit/react'
 import React, { type ReactNode } from 'react'
+import { IconButton } from '@mui/material'
+import HomeIcon from '@mui/icons-material/Home';
 
 if (!projectId) {
   throw new Error('Project ID is not defined')
@@ -31,9 +33,22 @@ export const modal = createAppKit({
   }
 })
 
-function ContextProvider({ children }: { children: ReactNode}) {
+function ContextProvider({ children }: { children: ReactNode }) {
+  //const router = useRouter()
+  function goHome() {
+    //router.push("/");
+  }
+
   return (
-    <>{children}</>
+    <div>
+      <div className='flex-row'>
+        <IconButton onClick={goHome}>
+          <HomeIcon />
+        </IconButton>
+        <appkit-button />
+      </div>
+      <div>{children}</div>
+    </div>
   )
 }
 
