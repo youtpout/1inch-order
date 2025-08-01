@@ -3,7 +3,7 @@ import { useDisconnect, useAppKit, useAppKitNetwork, Provider, useAppKitAccount,
 import { networks } from '@/config'
 import { disconnect } from 'process';
 import { LimitOrder, MakerTraits, Address, OrderInfoData, Extension, LimitOrderWithFee, Sdk } from "@1inch/limit-order-sdk"
-import { inchAggregator, proxy, weth, ZERO_ADDRESS } from '@/utils/addresses';
+import { inchAggregator, proxyAddress, weth, ZERO_ADDRESS } from '@/utils/addresses';
 import { arbitrum } from '@reown/appkit/networks';
 import { BrowserProvider, ethers, Interface } from 'ethers';
 import PositionOrderAbi from "@/utils/PositionOrderAbi.json";
@@ -52,8 +52,8 @@ export const CreateOrder = ({ tokenId, manager }) => {
                 )
 
                 const orderInfo: OrderInfoData = {
-                    makerAsset: new Address(proxy),
-                    takerAsset: new Address(proxy),
+                    makerAsset: new Address(proxyAddress),
+                    takerAsset: new Address(proxyAddress),
                     makingAmount: BigInt(1),
                     takingAmount: BigInt(1),
                     maker: new Address(address)
@@ -69,14 +69,8 @@ export const CreateOrder = ({ tokenId, manager }) => {
                     postInteraction: '0x',
                     customData: '0x',
                 });
-                const takerTraits = buildTakerTraits({
-                    threshold: BigInt("1000000000000000000"),
-                    makingAmount: true,
-                    extension: extension.encode(),
-                });
 
-
-                const order = new LimitOrder(orderInfo, new MakerTraits(takerTraits.traits), extension);
+                const order = new LimitOrder(orderInfo, undefined, extension);
 
 
                 const typedData = order.getTypedData(chainId)

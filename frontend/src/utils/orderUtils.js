@@ -1,5 +1,6 @@
 import {
-    ethers
+    ethers,
+    keccak256
 } from "ethers";
 
 const Order = [
@@ -216,7 +217,7 @@ function buildOrderRFQ(
     );
 }
 
-function buildOrder(
+export function buildOrder(
     {
         maker,
         receiver = constants.ZERO_ADDRESS,
