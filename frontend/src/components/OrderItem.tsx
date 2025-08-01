@@ -50,7 +50,7 @@ export const OrderItem = ({ orderDto }) => {
                 const takerTraits = buildTakerTraits({
                     threshold: price,
                     makingAmount: true,
-                    extension: extension.encode(),
+                    extension: orderDto.extension,
                 });
 
                 const order = { ...orderDto.order, extension: orderDto.extension };
