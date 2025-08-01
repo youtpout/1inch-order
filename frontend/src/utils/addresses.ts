@@ -103,9 +103,9 @@ export const oracles = [
 
 
 export function getPositionUrl(manager: string, nftId: string) {
-    if (manager.toLowerCase() === "0xC36442b4a4522E871399CD717aBDD847Ab11FE88".toLowerCase()) {
+    if (manager?.toLowerCase() === "0xC36442b4a4522E871399CD717aBDD847Ab11FE88".toLowerCase()) {
         return `https://app.uniswap.org/positions/v3/arbitrum/${nftId}`
     } else {
-        return `https://nft.pancakeswap.com/v3/42161/${nftId}`;
+        return `https://pancakeswap.finance/liquidity/${nftId}?chain=arb`;
     }
 }

@@ -1,14 +1,17 @@
-import { db } from "@/lib/db";
 import { orders } from "@/lib/schema";
 import { CustomAxiosProviderConnector } from "@/utils/AxiosProviderConnector";
 import { Address, Api, AuthError, Extension, LimitOrder, LimitOrderWithFee, Pager, Sdk } from "@1inch/limit-order-sdk"
 import { arbitrum } from "@reown/appkit/networks";
+import { drizzle } from "drizzle-orm/postgres-js";
 import { ethers } from "ethers";
 import { NextRequest, NextResponse } from "next/server";
+import postgres from "postgres";
 
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const address = searchParams.get("address");
+    const client = postgres(process.env.SUPABASE_DB_URL!)
+    const db = drizzle({ client });
 
     console.log("address", address);
 
@@ -79,6 +82,8 @@ export async function POST(req: NextRequest) {
         const hash = newLimitOrder.getOrderHash(arbitrum.id);
         const status = "created";
 
+        const client = postgres(process.env.SUPABASE_DB_URL!)
+        const db = drizzle({ client });
         await db.insert(orders).values({
             hash,
             order,

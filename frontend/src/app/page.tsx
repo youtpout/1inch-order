@@ -109,9 +109,13 @@ export default function Home() {
           const tokenId = await nfpmContract.tokenOfOwnerByIndex(address, index);
           const position = await nfpmContract.positions(tokenId);
           if (position.liquidity > 0) {
-            console.log("position", position);
             const tokenUri = await nfpmContract.tokenURI(tokenId);
-            const metadata = JSON.parse(b64DecodeUnicode(tokenUri.replace("data:application/json;base64,", "")))
+            const metadata = tokenUri.indexOf("data:application/json;base64,") !== -1 ?
+              JSON.parse(b64DecodeUnicode(tokenUri.replace("data:application/json;base64,", ""))) :
+              {
+                image: "/cake.png",
+                name: "pancake nft"
+              };
 
             const poolAddress = await factoryContract.getPool(position.token0, position.token1, position.fee);
 

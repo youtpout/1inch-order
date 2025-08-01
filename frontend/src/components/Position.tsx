@@ -28,7 +28,7 @@ export default function Position({ manager, nft, chain }: any) {
     return (
         <>
             <div className='nft-image'>
-                <img src={nft.metadata.image} alt='Position loading ...'></img>
+                <img src={nft.metadata?.image} alt='Position loading ...'></img>
                 <div className="nft-info">
                     <h4>
                         <a style={{ "textDecoration": "underline" }} target="blank" href={getPositionUrl(manager, nft.tokenId)}>Position Id : {nft.tokenId}</a>
