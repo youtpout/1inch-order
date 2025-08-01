@@ -42,7 +42,8 @@ function ContextProvider({ children }: { children: ReactNode }) {
   return (
     <div className='website-content'>
       <div className='website-container'>
-        <div className='flex-row' style={{ justifyContent: "flex-end" }}>
+        <div className='flex-row' style={{ justifyContent: "space-between", alignItems: "center" }}>
+          <h1>Position Order</h1>
           <appkit-button />
         </div>
         <div>{children}</div>

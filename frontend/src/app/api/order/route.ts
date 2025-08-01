@@ -17,8 +17,6 @@ export async function GET(req: NextRequest) {
 
 
     if (orderList.length) {
-        const oder0 = orderList[0];
-
         const completeOrders = orderList.map(o => {
             const decode = Extension.decode(o.extension);
 
@@ -42,15 +40,15 @@ export async function GET(req: NextRequest) {
         })
 
         if (address) {
-            const orderFilter = completeOrders.find(x => x.order?.maker?.toLowerCase() === address.toLowerCase())
+            const orderFilter = completeOrders.filter(x => x.order?.maker?.toLowerCase() === address.toLowerCase())
             // todo filter by address
-            return NextResponse.json({ orders: orderFilter ?? [] });
+            return NextResponse.json(orderFilter ?? []);
         }
 
-        return NextResponse.json({ orders: completeOrders });
+        return NextResponse.json(completeOrders);
     }
 
-    return NextResponse.json({ orders: orderList ?? [] });
+    return NextResponse.json(orderList ?? []);
 }
 
 export async function POST(req: NextRequest) {

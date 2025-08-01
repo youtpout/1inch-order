@@ -1,5 +1,5 @@
 :root {
-  --background: #ffffff;
+  --background: rgb(244, 246, 255);
   --foreground: #171717;
 }
 
@@ -61,17 +61,19 @@ button {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin: 15px; /* Space between buttons */
+  margin: 15px;
+  /* Space between buttons */
 }
 
 button:hover {
   background-color: black;
-    color: white;
+  color: white;
 }
 
 button:active {
-  background-color: #333; /* Dark gray on click */
-    color: white;
+  background-color: #333;
+  /* Dark gray on click */
+  color: white;
 }
 
 h1 {
@@ -79,8 +81,10 @@ h1 {
 }
 
 pre {
-  white-space: pre-wrap; /* Wrap text */
-  word-wrap: break-word; /* Break long words */
+  white-space: pre-wrap;
+  /* Wrap text */
+  word-wrap: break-word;
+  /* Break long words */
   word-break: break-all;
 }
 
@@ -94,18 +98,21 @@ pre {
 }
 
 .link-button:hover {
-  background-color: #333;  /* Darken the background on hover */
+  background-color: #333;
+  /* Darken the background on hover */
 }
 
 .link-button:hover {
-  background-color: white;  /* Change background to white on hover */
-  color: black;  /* Change text color to black on hover */
+  background-color: white;
+  /* Change background to white on hover */
+  color: black;
+  /* Change text color to black on hover */
 }
 
 .advice {
   text-align: 'center';
-   margin-bottom: 10px;
-   line-height: 25px;
+  margin-bottom: 10px;
+  line-height: 25px;
 }
 
 .flex-row {
@@ -121,21 +128,20 @@ pre {
   flex-wrap: wrap;
 }
 
-.website-content{
+.website-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding:  10px 0;
+  padding: 10px 0;
 
 }
 
-.website-container{
+.website-container {
   max-width: 1600px;
   width: 90vw;
 }
 
 .list-element {
-  background-color: lightblue;
   border-radius: 5px;
   margin: 10px;
   padding: 10px;

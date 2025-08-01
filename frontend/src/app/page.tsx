@@ -2,7 +2,7 @@
 
 import "./page.scss";
 import Image from 'next/image';
-import { Button, Card, CardActions, CardContent, FormControl, FormHelperText, InputBase, InputLabel, MenuItem, Select, SelectChangeEvent, styled, Typography } from "@mui/material";
+import { Button, Card, CardActions, CardContent, FormControl, FormHelperText, Grid, InputBase, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, styled, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { managers } from "@/utils/addresses";
 import {
@@ -23,9 +23,13 @@ import FACTORY_V3 from '@uniswap/v3-core/artifacts/contracts/UniswapV3Factory.so
 import POOL_V3 from '@uniswap/v3-core/artifacts/contracts/UniswapV3Pool.sol/UniswapV3Pool.json'
 import Position from "@/components/Position";
 import { arbitrum } from '@reown/appkit/networks'
+import { OrderItem } from "@/components/OrderItem";
 
 export default function Home() {
   const [platform, setPlatform] = useState(managers[0].dex);
+  const [orderList, setOrderList] = useState<any[]>([]);
+  const [filter, setFilter] = useState('all');
+  const [nftSelected, setNftSelected] = useState('0');
   const [manager, setManager] = useState(managers[0].manager);
   const [list, setList] = useState<any[]>([]);
   // AppKit hook to get the address and check if the user is connected
@@ -44,6 +48,11 @@ export default function Home() {
 
   }, [platform, address])
 
+
+  useEffect(() => {
+    getOrders().then();
+  }, [filter])
+
   const handleGetBalance = async () => {
     const provider = new BrowserProvider(walletProvider, arbitrum.id);
     const balance = await provider.getBalance(address!);
@@ -58,6 +67,18 @@ export default function Home() {
     }).join(''));
   }
 
+  async function getOrders() {
+    try {
+      const filterAddress = filter === "all" ? "" : `address=${address}`;
+      const fetchResponse = await fetch("/api/order?" + filterAddress);
+      const serviceResponse = await fetchResponse.json();
+      console.log(serviceResponse);
+      setOrderList(serviceResponse ?? []);
+    } catch (error) {
+      console.error("getOrders", error)
+    }
+
+  }
 
   async function getPositions() {
     try {
@@ -131,56 +152,93 @@ export default function Home() {
     },
   });
 
+  const handleOrderChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newAlignment: string,
+  ) => {
+    setFilter(newAlignment);
+  };
+
 
   return (
-    <div className="flex-row" style={{ justifyContent: "space-between", marginTop: "20px" }}>
-      <Card variant="outlined" style={{ flex: 2 }}>
-        <CardContent>
-          <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
-            <Select
-              labelId="demo-simple-select-helper-label"
-              id="demo-simple-select-helper"
-              value={platform}
-              onChange={handleChange}
-              input={<NoUnderlineInput />}
-            >
-              {managers.map(p =>
-                <MenuItem key={p.dex} value={p.dex}>{p.dex}</MenuItem>
-              )}
-            </Select>
-          </FormControl>
+    <Grid container spacing={2} style={{ flex: 1 }}>
+      <Grid size={8}>
+        <Stack spacing={2}>
+          <Card variant="elevation" style={{ maxHeight: "800px", minHeight: "400px" }}   >
+            <CardContent>
+              <div className="flex-row" style={{ alignItems: "center", marginBottom: "10px" }}>
+                <img width={32} height={32} style={{ marginRight: "5px" }} src={platform === "Uniswap" ? "/uniswap.png" : "/cake.png"}></img>
+                <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+                  <Select
+                    labelId="demo-simple-select-helper-label"
+                    id="demo-simple-select-helper"
+                    value={platform}
+                    onChange={handleChange}
+                    input={<NoUnderlineInput />}
+                  >
+                    {managers.map(p =>
+                      <MenuItem key={p.dex} value={p.dex}>{p.dex}</MenuItem>
+                    )}
+                  </Select>
+                </FormControl>
+              </div>
+              <div className="position" style={{ height: "100%", overflow: "auto" }}>
+                {!list?.length && <div>No position found</div>}
+                {list.map(x => <div title="Click to select" key={x.index} onClick={() => setNftSelected(x.tokenId.toString())} className={nftSelected === x.tokenId.toString() ? "position-selected list-element metadata" : " list-element metadata"}>
+                  <Position nft={x} manager={manager} ></Position>
+                </div>)}
+              </div>
+            </CardContent>
+          </Card>
+          <Card variant="elevation"  >
 
-          <div className="position">
-            {list?.length ? <h3>Active positions : </h3> : <div></div>}
-            {list.map(x => <div key={x.index} className='list-element metadata'>
-              <Position nft={x} manager={manager} ></Position>
-            </div>)}
-          </div>
-        </CardContent>
-        <CardActions>
-          <Button size="small">Learn More</Button>
-        </CardActions>
-      </Card>
-      <div style={{ width: "20px" }}></div>
-      <Card variant="outlined" style={{ flex: 1 }}>
-        <CardContent>
-          <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
-            Word of the Day
-          </Typography>
-          <Typography variant="h5" component="div">
+            <CardContent>
+              <div className="flex-row" style={{ alignItems: "center", justifyContent: "space-between" }}>
+                <h3>Orders</h3>
+                <ToggleButtonGroup
+                  value={filter}
+                  color="secondary"
+                  exclusive
+                  onChange={handleOrderChange}
+                  aria-label="Orders"
+                >
+                  <ToggleButton value="all">All orders</ToggleButton>
+                  <ToggleButton value="mine">My orders</ToggleButton>
+                </ToggleButtonGroup>
+              </div>
+              <div>
+                {orderList?.map(x =>
+                  <div key={x.hash}>
+                    <OrderItem orderDto={x}></OrderItem>
+                  </div>)}
 
-          </Typography>
-          <Typography sx={{ color: 'text.secondary', mb: 1.5 }}>adjective</Typography>
-          <Typography variant="body2">
-            well meaning and kindly.
-            <br />
-            {'"a benevolent smile"'}
-          </Typography>
-        </CardContent>
-        <CardActions style={{ flex: 1 }}>
-          <Button size="small">Learn More</Button>
-        </CardActions>
-      </Card>
-    </div>
+              </div>
+            </CardContent>
+          </Card>
+        </Stack>
+      </Grid>
+      <Grid size={4}>
+
+        <Card variant="outlined">
+          <CardContent>
+            <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
+              Word of the Day
+            </Typography>
+            <Typography variant="h5" component="div">
+
+            </Typography>
+            <Typography sx={{ color: 'text.secondary', mb: 1.5 }}>adjective</Typography>
+            <Typography variant="body2">
+              well meaning and kindly.
+              <br />
+              {'"a benevolent smile"'}
+            </Typography>
+          </CardContent>
+          <CardActions style={{ flex: 1 }}>
+            <Button size="small">Learn More</Button>
+          </CardActions>
+        </Card>
+      </Grid>
+    </Grid>
   );
 }

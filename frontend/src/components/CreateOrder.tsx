@@ -77,7 +77,7 @@ export const CreateOrder = ({ tokenId, manager }) => {
 
 
                 const order = new LimitOrder(orderInfo, new MakerTraits(takerTraits.traits), extension);
-             
+
 
                 const typedData = order.getTypedData(chainId)
 
@@ -108,8 +108,8 @@ export const CreateOrder = ({ tokenId, manager }) => {
         }
     }
     return (
-        <div>
+        <>
             <button onClick={() => create()}>Create</button>
-        </div>
+        </>
     )
 }

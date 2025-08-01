@@ -6,6 +6,9 @@ import ContextProvider from '@/context'
 export const metadata: Metadata = {
   title: 'Position Order',
   description: 'Create stop loss order on your position',
+   icons: {
+    icon: '/favicon.webp',
+  },
 };
 
 export default async function RootLayout({

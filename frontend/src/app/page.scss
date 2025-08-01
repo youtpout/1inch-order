@@ -1,5 +1,9 @@
-.position {
+.position-selected {
+    background-color: rgb(244, 246, 255);
+}
 
+.position {
+    cursor: pointer;
     display: flex;
     flex-direction: column;
 
@@ -33,8 +37,4 @@
             }
         }
     }
-
-
-
-
 }
