@@ -12,6 +12,7 @@ import {
     type Provider,
 } from "@reown/appkit/react";
 import { CreateOrder } from "./CreateOrder";
+import { getPositionUrl } from "@/utils/addresses";
 
 export default function Position({ manager, nft, chain }: any) {
 
@@ -30,7 +31,7 @@ export default function Position({ manager, nft, chain }: any) {
                 <img src={nft.metadata.image} alt='Position loading ...'></img>
                 <div className="nft-info">
                     <h4>
-                        <a style={{ "textDecoration": "underline" }} target="blank" href={`https://app.uniswap.org/positions/v3/${chain}/${nft.tokenId}`}>Position Id : {nft.tokenId}</a>
+                        <a style={{ "textDecoration": "underline" }} target="blank" href={getPositionUrl(manager, nft.tokenId)}>Position Id : {nft.tokenId}</a>
                         {nft.inRange ? <div style={{ color: "green" }}>In range</div> : <div style={{ color: "red" }}>Out of Range</div>}
                     </h4>
                     <h3>

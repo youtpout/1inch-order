@@ -100,3 +100,12 @@ export const oracles = [
     { token: dai.normalizedName, address: "0xc5C8E77B397E531B8EC06BFb0048328B30E9eCfB" },
     { token: weth.normalizedName, address: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612" },
     { token: wbtc.normalizedName, address: "0x6ce185860a4963106506C203335A2910413708e9" }];
+
+
+export function getPositionUrl(manager: string, nftId: string) {
+    if (manager.toLowerCase() === "0xC36442b4a4522E871399CD717aBDD847Ab11FE88".toLowerCase()) {
+        return `https://app.uniswap.org/positions/v3/arbitrum/${nftId}`
+    } else {
+        return `https://nft.pancakeswap.com/v3/42161/${nftId}`;
+    }
+}

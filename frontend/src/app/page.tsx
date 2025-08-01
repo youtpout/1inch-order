@@ -209,12 +209,14 @@ export default function Home() {
               <hr style={{ margin: "10px" }}></hr>
               <div style={{ height: "100%", overflow: "auto" }}>
                 <table className="table-orders" width="100%">
-                  <tr>
-                    <th>Dex</th>
-                    <th>Position Id</th>
-                    <th>Price</th>
-                    <th>Action</th>
-                  </tr>
+                  <thead>
+                    <tr>
+                      <th>Dex</th>
+                      <th>Position Id</th>
+                      <th>Price</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
                   {orderList?.map(x =>
                     <tbody key={x.hash}>
                       <OrderItem orderDto={x}></OrderItem>
