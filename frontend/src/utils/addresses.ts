@@ -1,7 +1,7 @@
 // Configured for Arbitrum mainnet
 
 export const proxy = "0x99acae685b4d8d214a9a5db7775487e10167279a";
-export const lop = "0x111111125421ca6dc452d289314280a0f8842a65";
+export const inchAggregator = "0x111111125421ca6dc452d289314280a0f8842a65";
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 export const managers = [

@@ -1,5 +1,8 @@
+import { db } from "@/lib/db";
+import { orders } from "@/lib/schema";
 import { CustomAxiosProviderConnector } from "@/utils/AxiosProviderConnector";
 import { Address, Api, AuthError, Extension, LimitOrder, LimitOrderWithFee, Pager, Sdk } from "@1inch/limit-order-sdk"
+import { arbitrum } from "@reown/appkit/networks";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -48,25 +51,23 @@ export async function POST(req: NextRequest) {
         console.log("signature", signature);
         console.log("extension", extension);
 
-        const api = new Api({
-            authKey: process.env.INCH_KEY!,
-            networkId: 42161,
-            httpConnector: new CustomAxiosProviderConnector(),
-        });
 
         const des = JSON.parse(order);
         const ext = Extension.decode(extension);
+
         const newLimitOrder = LimitOrder.fromDataAndExtension(des, ext);
+        const hash = newLimitOrder.getOrderHash(arbitrum.id);
+        const status = "created";
 
-        console.log("newLimitOrder", newLimitOrder)
+        await db.insert(orders).values({
+            hash,
+            order,
+            extension,
+            signature,
+            status,
+        });
 
-        await api.submitOrder(newLimitOrder, signature);
-
-
-        // Tu peux ici traiter ou décoder l'ordre (par exemple, JSON.parse(order) si c'est un JSON encodé)
-        // const parsedOrder = JSON.parse(order);
-
-        return NextResponse.json({ message: 'Order received successfully' });
+        return new Response(JSON.stringify({ success: true }), { status: 201 });
     } catch (err) {
         console.error("POST /api/order error:", err);
         return NextResponse.json(
