@@ -3,6 +3,7 @@ import { orders } from "@/lib/schema";
 import { CustomAxiosProviderConnector } from "@/utils/AxiosProviderConnector";
 import { Address, Api, AuthError, Extension, LimitOrder, LimitOrderWithFee, Pager, Sdk } from "@1inch/limit-order-sdk"
 import { arbitrum } from "@reown/appkit/networks";
+import { ethers } from "ethers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -11,24 +12,45 @@ export async function GET(req: NextRequest) {
 
     console.log("address", address);
 
-    if (!address) {
-        return NextResponse.json(
-            { error: "Missing address parameter" },
-            { status: 400 }
-        );
-    } else {
-        const api = new Api({
-            authKey: process.env.INCH_KEY!,
-            networkId: 42161,
-            httpConnector: new CustomAxiosProviderConnector(),
-        });
+    const orderList = await db.select().from(orders);
+    console.log("orders", orderList);
 
-        const orders = await api.getOrdersByMaker(new Address(address), { pager: new Pager({ limit: 100, page: 1 }), statuses: [1, 2, 3] });
 
-        console.log("orders", orders);
+    if (orderList.length) {
+        const oder0 = orderList[0];
 
-        return NextResponse.json({ orders });
+        const completeOrders = orderList.map(o => {
+            const decode = Extension.decode(o.extension);
+
+            const makerAsset = ethers.AbiCoder.defaultAbiCoder().decode(
+                ['uint256', 'address'],
+                decode.makerAssetSuffix
+            );
+            const takerAsset = ethers.AbiCoder.defaultAbiCoder().decode(
+                ['uint256', 'address'],
+                decode.takerAssetSuffix
+            );
+
+            let result = {
+                ...o,
+                positionManager: makerAsset[1].toString(),
+                tokenId: makerAsset[0].toString(),
+                buyAsset: takerAsset[1].toString(),
+                price: takerAsset[0].toString()
+            };
+            return result;
+        })
+
+        if (address) {
+            const orderFilter = completeOrders.find(x => x.order?.maker?.toLowerCase() === address.toLowerCase())
+            // todo filter by address
+            return NextResponse.json({ orders: orderFilter ?? [] });
+        }
+
+        return NextResponse.json({ orders: completeOrders });
     }
+
+    return NextResponse.json({ orders: orderList ?? [] });
 }
 
 export async function POST(req: NextRequest) {

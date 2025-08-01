@@ -4,8 +4,8 @@ import './globals.css';
 import ContextProvider from '@/context'
 
 export const metadata: Metadata = {
-  title: "AppKit in Next.js + ethers",
-  description: "AppKit example dApp",
+  title: 'Position Order',
+  description: 'Create stop loss order on your position',
 };
 
 export default async function RootLayout({
