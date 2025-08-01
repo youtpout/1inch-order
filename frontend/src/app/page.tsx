@@ -190,7 +190,7 @@ export default function Home() {
               </div>
             </CardContent>
           </Card>
-          <Card variant="elevation"  >
+          <Card variant="elevation" style={{ maxHeight: "800px", minHeight: "400px" }} >
 
             <CardContent>
               <div className="flex-row" style={{ alignItems: "center", justifyContent: "space-between" }}>
@@ -206,11 +206,20 @@ export default function Home() {
                   <ToggleButton value="mine">My orders</ToggleButton>
                 </ToggleButtonGroup>
               </div>
-              <div>
-                {orderList?.map(x =>
-                  <div key={x.hash}>
-                    <OrderItem orderDto={x}></OrderItem>
-                  </div>)}
+              <hr style={{ margin: "10px" }}></hr>
+              <div style={{ height: "100%", overflow: "auto" }}>
+                <table className="table-orders" width="100%">
+                  <tr>
+                    <th>Dex</th>
+                    <th>Position Id</th>
+                    <th>Price</th>
+                    <th>Action</th>
+                  </tr>
+                  {orderList?.map(x =>
+                    <tbody key={x.hash}>
+                      <OrderItem orderDto={x}></OrderItem>
+                    </tbody>)}
+                </table>
 
               </div>
             </CardContent>
