@@ -3,7 +3,7 @@ import { useDisconnect, useAppKit, useAppKitNetwork, Provider, useAppKitAccount,
 import { networks } from '@/config'
 import { disconnect } from 'process';
 import { LimitOrder, MakerTraits, Address, OrderInfoData, Extension, LimitOrderWithFee, Sdk } from "@1inch/limit-order-sdk"
-import { inchAggregator, proxyAddress, weth, ZERO_ADDRESS } from '@/utils/addresses';
+import { inchAggregator, proxyAddress, usdc, weth, ZERO_ADDRESS } from '@/utils/addresses';
 import { arbitrum } from '@reown/appkit/networks';
 import { BrowserProvider, ethers, Interface } from 'ethers';
 import PositionOrderAbi from "@/utils/PositionOrderAbi.json";
@@ -39,7 +39,7 @@ export const CreateOrder = ({ tokenId, manager }) => {
                     'func_60iHVgK',
                     // ERC721Proxy arguments (2 last passed as extra)
                     // address from, address to, uint256 amount, uint256 tokenId, IERC721 token
-                    [ZERO_ADDRESS, address, 0, BigInt(10) ** BigInt(12), weth.address.arbitrum],
+                    [ZERO_ADDRESS, address, 0, BigInt(10) ** BigInt(6), usdc.address.arbitrum],
                     // leave only 2 extra arguments
                 ).substring(202);
 
