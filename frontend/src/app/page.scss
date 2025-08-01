@@ -30,6 +30,7 @@
                 width: 100px;
                 height: auto;
                 object-fit: contain;
+                margin-right: 10px;
             }
 
             .nft-info {
@@ -44,5 +45,9 @@
     th {
         font-weight: normal;
         color: rgb(108, 134, 173);
+    }
+
+    td {
+        text-align: center;
     }
 }
