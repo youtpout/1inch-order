@@ -1,24 +1,20 @@
 'use client'
 
-import { getLogo, getPositionUrl, inchAggregator, proxyAddress, weth, ZERO_ADDRESS } from "@/utils/addresses";
+import { getLogo, getPositionUrl, inchAggregator, listTokens, oracles, proxyAddress, weth, ZERO_ADDRESS } from "@/utils/addresses";
 import { useDisconnect, useAppKit, useAppKitNetwork, Provider, useAppKitAccount, useAppKitNetworkCore, useAppKitProvider } from '@reown/appkit/react'
 import FormatPrice from "./FormatPrice";
 import { buildOrder, buildTakerTraits } from "@/utils/orderUtils";
 import { OrderInfoData, Address, Extension, LimitOrder, MakerTraits } from "@1inch/limit-order-sdk";
 import { arbitrum } from "@reown/appkit/networks";
-import { BrowserProvider, ethers } from "ethers";
-import { Interface } from "readline";
+import { BrowserProvider, ethers, Interface } from "ethers";
 import AggregatorAbi from "@/utils/AggregatorAbi.json";
 import IERC20 from '@uniswap/v3-periphery/artifacts/contracts/interfaces/IERC20Metadata.sol/IERC20Metadata.json';
-import build from "next/dist/build";
+import PositionOrderAbi from "@/utils/PositionOrderAbi.json";
 
 export const OrderItem = ({ orderDto }) => {
     const { address, isConnected } = useAppKitAccount();
     const { walletProvider } = useAppKitProvider<Provider>("eip155");
 
-    const chainId = arbitrum.id;
-
-    console.log("extension", Extension.decode(orderDto.extension))
 
     const buy = async () => {
         try {
@@ -88,7 +84,7 @@ export const OrderItem = ({ orderDto }) => {
         }
     }
 
-    const formatDate = (isoString) => {
+    const formatDate = (isoString: string) => {
         const date = new Date(isoString);
         return new Intl.DateTimeFormat('en-CA', {
             year: 'numeric',
@@ -101,6 +97,30 @@ export const OrderItem = ({ orderDto }) => {
             timeZone: 'UTC',
         }).format(date).replace(',', '');
     };
+
+    const getTriggerPrice = (extension: string) => {
+        const decodedExtension = Extension.decode(extension);
+        const aggregatorAbi = new Interface(AggregatorAbi);
+        const proxyAbi = new Interface(PositionOrderAbi);
+        if (decodedExtension.predicate.length > 2) {
+            // decode the trigger price from the predicate
+            const decodePredicate = aggregatorAbi.decodeFunctionData("lt", decodedExtension.predicate);
+            const arbitraryCall = aggregatorAbi.decodeFunctionData('arbitraryStaticCall', decodePredicate[1]);
+            const oracleCall = proxyAbi.decodeFunctionData('getPrice', arbitraryCall[1]);
+
+            const price = decodePredicate[0];
+            const oracleAddress = oracleCall[0];
+            const findOracle = oracles.find(x => x.address.toLowerCase() === oracleAddress.toLowerCase());
+            if (findOracle) {
+                const token = listTokens.find(x => x.normalizedName === findOracle.token);
+                if (token) {
+                    const result = ethers.formatUnits(price, token.decimals);
+                    return `${token.normalizedName} > ${result} $`;
+                }
+            }
+        }
+        return "";
+    };
     return (
         <tr>
             <td>
@@ -110,6 +130,7 @@ export const OrderItem = ({ orderDto }) => {
                 </a>
             </td>
             <td><FormatPrice tokenAddress={orderDto.buyAsset} amount={orderDto.price}></FormatPrice></td>
+            <td><span>{getTriggerPrice(orderDto.extension)}</span></td>
             <td style={{ fontSize: "12px" }}><span>{formatDate(orderDto.createdAt)}</span></td>
             <td height="50px">{address ? <button onClick={buy}>buy</button> : <span>Connect to manage</span>}</td>
         </tr >

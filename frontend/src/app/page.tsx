@@ -210,6 +210,7 @@ export default function Home() {
                     <tr>
                       <th>Position Id</th>
                       <th>Price</th>
+                      <th>Trigger</th>
                       <th>Created</th>
                       <th>Action</th>
                     </tr>
