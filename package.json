@@ -10,9 +10,10 @@
     "contracts",
     "frontend"
   ],
-   "scripts": {
-        "compile": "yarn workspace contracts compile",
-        "test": "yarn workspace contracts test",
-        "dev": "yarn workspace frontend dev"
-    }
+  "scripts": {
+    "compile": "yarn workspace contracts compile",
+    "test": "yarn workspace contracts test",
+    "dev": "yarn workspace frontend dev",
+    "migrate": "yarn workspace frontend migrate"
+  }
 }
