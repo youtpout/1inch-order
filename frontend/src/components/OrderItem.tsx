@@ -10,10 +10,26 @@ import { BrowserProvider, ethers, Interface } from "ethers";
 import AggregatorAbi from "@/utils/AggregatorAbi.json";
 import IERC20 from '@uniswap/v3-periphery/artifacts/contracts/interfaces/IERC20Metadata.sol/IERC20Metadata.json';
 import PositionOrderAbi from "@/utils/PositionOrderAbi.json";
+import { Alert, AlertColor, Snackbar, SnackbarCloseReason } from "@mui/material";
+import { useState } from "react";
 
 export const OrderItem = ({ orderDto }) => {
     const { address, isConnected } = useAppKitAccount();
     const { walletProvider } = useAppKitProvider<Provider>("eip155");
+    const [open, setOpen] = useState(false);
+    const [message, setMessage] = useState("");
+    const [severity, setSeverity] = useState<AlertColor>("success");
+
+    const handleClose = (
+        event?: React.SyntheticEvent | Event,
+        reason?: SnackbarCloseReason,
+    ) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setOpen(false);
+    };
 
 
     const buy = async () => {
@@ -39,6 +55,10 @@ export const OrderItem = ({ orderDto }) => {
                 const allowance = await tokenContract.allowance(address, proxyAddress);
 
                 if (allowance < price) {
+                    setMessage("Approve spend in your wallet");
+                    setSeverity("info");
+                    setOpen(true);
+
                     const allowTx = await tokenContract.approve(proxyAddress, price);
                     await allowTx.wait();
                 }
@@ -55,10 +75,17 @@ export const OrderItem = ({ orderDto }) => {
 
                 console.log("order", order);
 
+                setMessage("Approve fill in your wallet");
+                setSeverity("info");
+                setOpen(true);
+
                 const { r, yParityAndS: vs } = ethers.Signature.from(orderDto.signature);
                 const fillTx = await inchContract.fillOrderArgs(order, r, vs, price, takerTraits.traits, takerTraits.args);
                 await fillTx.wait()
-                console.log("filltx", fillTx);
+
+                setMessage("Filled");
+                setSeverity("success");
+                setOpen(true);
             }
         } catch (error) {
             console.error("Failed to buy order:", error);
@@ -75,11 +102,23 @@ export const OrderItem = ({ orderDto }) => {
                     const decoded = inchContract.interface.parseError(error.data);
                     console.log("Erreur personnalisée : ", decoded.name);
                     console.log("Arguments :", decoded.args);
+
+                    setMessage(decoded.name);
+                    setSeverity("error");
+                    setOpen(true);
                 } catch (decodeError) {
                     console.log("Erreur non reconnue (pas dans l'ABI)", decodeError);
+
+                    setMessage("Failed");
+                    setSeverity("error");
+                    setOpen(true);
                 }
             } else {
                 console.log("Erreur sans données de revert", error);
+
+                setMessage("Failed");
+                setSeverity("error");
+                setOpen(true);
             }
         }
     }
@@ -147,7 +186,24 @@ export const OrderItem = ({ orderDto }) => {
             <td><FormatPrice tokenAddress={orderDto.buyAsset} amount={orderDto.price}></FormatPrice></td>
             <td><span>{getTriggerPrice(orderDto.extension)}</span></td>
             <td style={{ fontSize: "12px" }}><span>{formatDate(orderDto.createdAt)}</span></td>
-            <td height="50px">{address ? <button onClick={buy}>buy</button> : <span>Connect to manage</span>}</td>
+            <td height="50px">{address ? <button onClick={buy}>buy</button> : <span>Connect to manage</span>}
+                <Snackbar
+                    open={open}
+                    color="primary"
+                    autoHideDuration={5000}
+                    onClose={handleClose}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                >
+                    <Alert
+                        severity={severity}
+                        variant="filled"
+                        sx={{ width: '100%' }}
+                    >
+                        {message}
+                    </Alert>
+
+                </Snackbar>
+            </td>
         </tr >
     )
 }

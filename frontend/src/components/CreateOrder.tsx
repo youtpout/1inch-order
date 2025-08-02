@@ -10,7 +10,7 @@ import PositionOrderAbi from "@/utils/PositionOrderAbi.json";
 import { buildTakerTraits } from '@/utils/orderUtils';
 import { CustomAxiosProviderConnector } from '@/utils/AxiosProviderConnector';
 import AggregatorAbi from "@/utils/AggregatorAbi.json";
-import { FormControl, Select, MenuItem, SelectChangeEvent, InputLabel, TextField } from '@mui/material';
+import { FormControl, Select, MenuItem, SelectChangeEvent, InputLabel, TextField, Alert, Snackbar, AlertColor, SnackbarCloseReason } from '@mui/material';
 import { ChangeEvent, useState } from 'react';
 import { NoUnderlineInput } from '@/utils/NoUnderlineInput';
 import INONFUNGIBLE_POSITION_MANAGER from '@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
@@ -30,6 +30,11 @@ export const CreateOrder = ({ tokenId, manager }) => {
     const [triggerAsset, setTriggerAsset] = useState(weth);
     const [compare, setCompare] = useState("lt");
     const [triggerPrice, setTriggerPrice] = useState("0");
+
+    const [open, setOpen] = useState(false);
+    const [message, setMessage] = useState("");
+    const [severity, setSeverity] = useState<AlertColor>("success");
+
 
     const chainId = arbitrum.id;
 
@@ -63,6 +68,7 @@ export const CreateOrder = ({ tokenId, manager }) => {
         try {
 
             if (address) {
+
                 const provider = new BrowserProvider(walletProvider, arbitrum.id);
 
                 const proxyAbi = new Interface(PositionOrderAbi);
@@ -78,6 +84,9 @@ export const CreateOrder = ({ tokenId, manager }) => {
                 console.log("makerAssetSuffix", makerAssetSuffix)
 
                 const amount = ethers.parseUnits(sellPrice.toString(), token.decimals);
+                if (amount === 0n || amount === "0") {
+                    throw "Price can't be zero"
+                }
                 const takerAssetSuffix = '0x' + proxyAbi.encodeFunctionData(
                     'func_60iHVgK',
                     // ERC721Proxy arguments (2 last passed as extra)
@@ -92,6 +101,11 @@ export const CreateOrder = ({ tokenId, manager }) => {
                 console.log("triggerPrice", triggerPrice)
                 const predicatePrice = ethers.parseUnits(triggerPrice, triggerAsset.decimals);
                 console.log("predicatePrice", predicatePrice)
+
+                if (triggerPrice === 0n || triggerPrice === "0") {
+                    throw "Trigger price can't be zero"
+                }
+
                 const oracleCall = aggregatorAbi.encodeFunctionData('arbitraryStaticCall', [
                     proxyAddress,
                     proxyAbi.encodeFunctionData('getPrice', [oracle?.address, triggerAsset.decimals])
@@ -142,11 +156,19 @@ export const CreateOrder = ({ tokenId, manager }) => {
                 const approvedAddress = await managerContract.getApproved(tokenId);
                 const isAllowed = isApprovedForAll || approvedAddress.toLowerCase() === proxyAddress.toLowerCase();
                 if (!isAllowed) {
+                    setMessage("Approve Nft spend in your wallet");
+                    setSeverity("info");
+                    setOpen(true);
+
                     const allowTx = await managerContract.approve(proxyAddress, tokenId);
                     await allowTx.wait();
                 }
 
                 const typedData = order.getTypedData(chainId)
+
+                setMessage("Sign in your wallet");
+                setSeverity("info");
+                setOpen(true);
 
                 const signature = await signer.signTypedData(
                     typedData.domain,
@@ -163,12 +185,37 @@ export const CreateOrder = ({ tokenId, manager }) => {
                 });
 
                 const data = await res.json();
-                console.log("response", data);
+
+                setMessage("Registered");
+                setSeverity("success");
+                setOpen(true);
             }
         } catch (error) {
             console.error("Failed to create order:", error);
+
+            if (typeof error === 'string') {
+                setMessage(error);
+            } else if (error instanceof Error) {
+                setMessage(error.message);
+            } else {
+                setMessage('Unknow error');
+            }
+            setSeverity("error");
+            setOpen(true);
         }
     }
+
+    const handleClose = (
+        event?: React.SyntheticEvent | Event,
+        reason?: SnackbarCloseReason,
+    ) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setOpen(false);
+    };
+
     return (
         <div>
             <div className="flex-row" style={{ alignItems: "center", marginBottom: "10px" }}>
@@ -243,7 +290,22 @@ export const CreateOrder = ({ tokenId, manager }) => {
             <div className='flex-row' style={{ justifyContent: "center" }}>
                 {!tokenId || tokenId === "0" ? <div><b>Select a position</b></div> : <button onClick={() => create()}>Create</button>}
             </div>
+            <Snackbar
+                open={open}
+                color="primary"
+                autoHideDuration={5000}
+                onClose={handleClose}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert
+                    severity={severity}
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    {message}
+                </Alert>
 
+            </Snackbar>
         </div>
     )
 }
