@@ -6,6 +6,9 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { ethers } from "ethers";
 import { NextRequest, NextResponse } from "next/server";
 import postgres from "postgres";
+import { eq } from "drizzle-orm";
+import { chainIdArbitrum } from "@/utils/addresses";
+import axios from "axios";
 
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
@@ -62,8 +65,6 @@ export async function POST(req: NextRequest) {
         const extension: string = body.extension;
         const signature: string = body.signature;
 
-
-
         if (!order || typeof order !== 'string') {
             return NextResponse.json(
                 { error: 'Invalid or missing "order" parameter' },
@@ -100,4 +101,44 @@ export async function POST(req: NextRequest) {
             { status: 400 }
         );
     }
+}
+
+
+export async function PUT(req: NextRequest) {
+    const client = postgres(process.env.POSTGRE_DB_URL!)
+    const db = drizzle({ client });
+
+    // update order status 
+    const orderList = await db.select().from(orders).where(eq(orders.status, 'created'));
+
+    if (orderList.length) {
+
+        orderList.forEach(async (o) => {
+            try {
+                const url = `https://api.1inch.dev/orderbook/v4.0/42161/events/${o.hash}`;
+
+                const config = {
+                    headers: {
+                        Authorization: `Bearer ${process.env.INCH_KEY}`,
+                    },
+                    params: {},
+                    paramsSerializer: {
+                        indexes: null,
+                    },
+                };
+                const response = await axios.get(url, config);
+                console.log(response.data);
+                const result = response.data[o.hash];
+                if (result.length) {
+                    const status = result[0].action;
+                    await db.update(orders).set({ status }).where(eq(orders.hash, o.hash));
+                }
+            } catch (error) {
+                console.error(error);
+            }
+
+        });
+    }
+
+    return NextResponse.json({ message: 'PUT' });
 }

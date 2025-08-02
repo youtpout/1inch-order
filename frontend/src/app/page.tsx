@@ -2,9 +2,10 @@
 
 import "./page.scss";
 import Image from 'next/image';
-import { Button, Card, CardActions, CardContent, Checkbox, FormControl, FormHelperText, Grid, InputBase, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, styled, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import { Button, Card, CardActions, CardContent, Checkbox, FormControl, FormHelperText, Grid, IconButton, InputBase, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, styled, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { managers } from "@/utils/addresses";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import {
   useAppKitAccount,
   useAppKitProvider,
@@ -43,6 +44,17 @@ export default function Home() {
   const handleChange = (event: SelectChangeEvent) => {
     setPlatform(event.target.value);
   };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // every 5 minute we refresh order status
+      fetch("/api/order", { method: "PUT" }).then().catch(err => {
+        console.error("Error PUT", err);
+      });
+    }, 300_000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const selectNft = (tokenId: string) => {
     setNftSelected(tokenId);
@@ -189,7 +201,11 @@ export default function Home() {
           <Card variant="elevation" style={{ maxHeight: "800px", minHeight: "400px" }} >
             <CardContent>
               <div className="flex-row" style={{ alignItems: "center", justifyContent: "space-between" }}>
-                <h3>Orders</h3>
+                <h3>Orders
+                  <IconButton color="secondary" onClick={getOrders} aria-label="reload">
+                    <RefreshIcon />
+                  </IconButton>
+                </h3>
                 <ToggleButtonGroup
                   value={filter}
                   color="secondary"
