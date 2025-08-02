@@ -238,7 +238,7 @@ export const CreateOrder = ({ tokenId, manager }) => {
                 {`You request to receive ${sellPrice} ${tokenName} if the price of ${triggerAssetName} is ${compare === "lt" ? "less than" : "greater than"} ${triggerPrice} $ for you position ${tokenId}`}
             </div>
             <div className='flex-row' style={{ justifyContent: "center" }}>
-                {!tokenId || tokenId === "0" ? <div>Select a position</div> : <button onClick={() => create()}>Create</button>}
+                {!tokenId || tokenId === "0" ? <div><b>Select a position</b></div> : <button onClick={() => create()}>Create</button>}
             </div>
 
         </div>

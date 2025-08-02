@@ -1,29 +1,8 @@
 'use client'
 
-import { useEffect, useState } from "react";
 
-import { Alert, Box, Button, FormControl, IconButton, InputLabel, Modal, NativeSelect, Snackbar, TextField } from "@mui/material";
-import { BrowserProvider, ethers } from "ethers";
-import POOL_V3 from '@uniswap/v3-core/artifacts/contracts/UniswapV3Pool.sol/UniswapV3Pool.json'
-import {
-    useAppKitAccount,
-    useAppKitProvider,
-    useAppKitNetworkCore,
-    type Provider,
-} from "@reown/appkit/react";
-import { CreateOrder } from "./CreateOrder";
 import { getPositionUrl } from "@/utils/addresses";
-
 export default function Position({ manager, nft, chain }: any) {
-
-    // AppKit hook to get the address and check if the user is connected
-    const { address, isConnected } = useAppKitAccount();
-    // AppKit hook to get the chain id
-    const { chainId } = useAppKitNetworkCore();
-    // AppKit hook to get the wallet provider
-    const { walletProvider } = useAppKitProvider<Provider>("eip155");
-
-    const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
     return (
         <>
@@ -36,7 +15,7 @@ export default function Position({ manager, nft, chain }: any) {
                     </h4>
                     <h3>
                         {nft.metadata.name}
-                    </h3>                  
+                    </h3>
                 </div>
             </div>
         </>

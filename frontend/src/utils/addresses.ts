@@ -4,6 +4,7 @@ export const proxyAddress = "0x99acae685b4d8d214a9a5db7775487e10167279a";
 export const inchAggregator = "0x111111125421ca6dc452d289314280a0f8842a65";
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 export const chainIdArbitrum = 42161;
+export const rpcArbitrum = "https://arb1.arbitrum.io/rpc";
 
 export const managers = [
     { dex: "Uniswap", manager: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88", factory: "0x1F98431c8aD98523631AE4a59f267346ea31F984" },

@@ -155,7 +155,7 @@ export default function Home() {
 
 
   return (
-    <Grid container spacing={2} style={{ flex: 1 }}>
+    <Grid container spacing={4} style={{ flex: 1 }}>
       <Grid size={8}>
         <Stack spacing={2}>
           <Card variant="elevation" style={{ maxHeight: "800px", minHeight: "400px" }}   >
@@ -226,17 +226,15 @@ export default function Home() {
       </Grid>
       <Grid size={4}>
         <Stack spacing={2}>
-          <Card variant="outlined" style={{ maxHeight: "200px", minHeight: "200px" }}>
+          <Card variant="outlined" style={{ height: "160px" }}>
             <CardContent>
               <h3>Crypto price</h3>
               <hr style={{ margin: "10px" }}></hr>
-              {walletProvider &&
-                <div>
-                  <OraclePrice tokenName="weth"></OraclePrice>
-                  <br></br>
-                  <OraclePrice tokenName="wbtc"></OraclePrice>
-                </div>
-              }
+              <div>
+                <OraclePrice tokenName="weth"></OraclePrice>
+                <br></br>
+                <OraclePrice tokenName="wbtc"></OraclePrice>
+              </div>
             </CardContent>
           </Card>
           <Card variant="outlined" style={{ backgroundColor: "rgba(47, 138, 245, 0.16)" }} >

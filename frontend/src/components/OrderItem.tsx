@@ -2,7 +2,7 @@
 
 import { getPositionUrl, inchAggregator, proxyAddress, weth, ZERO_ADDRESS } from "@/utils/addresses";
 import { useDisconnect, useAppKit, useAppKitNetwork, Provider, useAppKitAccount, useAppKitNetworkCore, useAppKitProvider } from '@reown/appkit/react'
-import Price from "./price";
+import FormatPrice from "./FormatPrice";
 import { buildOrder, buildTakerTraits } from "@/utils/orderUtils";
 import { OrderInfoData, Address, Extension, LimitOrder, MakerTraits } from "@1inch/limit-order-sdk";
 import { arbitrum } from "@reown/appkit/networks";
@@ -64,7 +64,7 @@ export const OrderItem = ({ orderDto }) => {
             }
         } catch (error) {
             console.error("Failed to buy order:", error);
-            if (error.data) {
+            if (error?.data) {
                 try {
                     const provider = new BrowserProvider(walletProvider, arbitrum.id);
                     const signer = await provider.getSigner();
@@ -93,7 +93,7 @@ export const OrderItem = ({ orderDto }) => {
                     <img height={30} src="/cake.png"></img>}
             </td>
             <td> <a style={{ "textDecoration": "underline", marginRight: "10px" }} target="blank" href={getPositionUrl(orderDto.manager, orderDto.tokenId)}>{orderDto.tokenId}</a></td>
-            <td><Price tokenAddress={orderDto.buyAsset} amount={orderDto.price}></Price></td>
+            <td><FormatPrice tokenAddress={orderDto.buyAsset} amount={orderDto.price}></FormatPrice></td>
             <td><button onClick={buy}>buy</button></td>
         </tr >
     )
