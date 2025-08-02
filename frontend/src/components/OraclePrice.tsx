@@ -31,8 +31,6 @@ export default function OraclePrice({ tokenName }: Props) {
         if (tokenName) {
             const token = listTokens.find(x => x.normalizedName === tokenName);
             const oracle = oracles.find(x => x.token === tokenName);
-            console.log("token", token);
-            console.log("oracle", oracle);
             const browserProvider = new BrowserProvider(walletProvider, chainIdArbitrum);
 
 

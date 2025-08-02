@@ -5,7 +5,7 @@ import { disconnect, platform } from 'process';
 import { LimitOrder, MakerTraits, Address, OrderInfoData, Extension, LimitOrderWithFee, Sdk } from "@1inch/limit-order-sdk"
 import { inchAggregator, listTokens, managers, oracles, proxyAddress, usdc, weth, ZERO_ADDRESS } from '@/utils/addresses';
 import { arbitrum } from '@reown/appkit/networks';
-import { BrowserProvider, ethers, Interface } from 'ethers';
+import { BrowserProvider, ethers, Interface, AbiCoder } from 'ethers';
 import PositionOrderAbi from "@/utils/PositionOrderAbi.json";
 import { buildTakerTraits } from '@/utils/orderUtils';
 import { CustomAxiosProviderConnector } from '@/utils/AxiosProviderConnector';
@@ -98,6 +98,12 @@ export const CreateOrder = ({ tokenId, manager }) => {
 
                 console.log("predicate", predicate);
 
+                const coder = new AbiCoder();
+                // send position fee to the current position owner
+                const preInteraction = proxyAddress + coder.encode(['address', 'uint256'], [manager, tokenId]).substring(2);
+
+                console.log("preinteraction", preInteraction);
+
                 const orderInfo: OrderInfoData = {
                     makerAsset: new Address(proxyAddress),
                     takerAsset: new Address(proxyAddress),
@@ -112,7 +118,7 @@ export const CreateOrder = ({ tokenId, manager }) => {
                     takingAmountData: '0x',
                     predicate,
                     makerPermit: '0x',
-                    preInteraction: '0x',
+                    preInteraction,
                     postInteraction: '0x',
                     customData: '0x',
                 });
@@ -193,10 +199,10 @@ export const CreateOrder = ({ tokenId, manager }) => {
                     </FormControl>
                     <FormControl variant="standard" sx={{ m: 1 }}>
                         <InputLabel variant="standard" htmlFor="uncontrolled-native">
-                            Lt or Gt
+                            Sign
                         </InputLabel>
                         <Select
-                            style={{ height: "60px", width: "50px" }}
+                            style={{ height: "60px", width: "50px", fontSize: "24px", fontWeight: "bold" }}
                             value={compare}
                             onChange={(e) => setCompare(e.target.value)}
                             input={<NoUnderlineInput />}
