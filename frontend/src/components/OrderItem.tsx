@@ -63,8 +63,6 @@ export const OrderItem = ({ orderDto }) => {
                     await allowTx.wait();
                 }
 
-                const extension = Extension.decode(orderDto.extension);
-
                 const takerTraits = buildTakerTraits({
                     threshold: price,
                     makingAmount: true,
@@ -75,7 +73,7 @@ export const OrderItem = ({ orderDto }) => {
 
                 console.log("order", order);
 
-                setMessage("Approve fill in your wallet");
+                setMessage("Approve order fill in your wallet");
                 setSeverity("info");
                 setOpen(true);
 
@@ -83,7 +81,7 @@ export const OrderItem = ({ orderDto }) => {
                 const fillTx = await inchContract.fillOrderArgs(order, r, vs, price, takerTraits.traits, takerTraits.args);
                 await fillTx.wait()
 
-                setMessage("Filled");
+                setMessage("Order filled");
                 setSeverity("success");
                 setOpen(true);
             }
@@ -141,9 +139,8 @@ export const OrderItem = ({ orderDto }) => {
         try {
             const decodedExtension = Extension.decode(extension);
             const aggregatorAbi = new Interface(AggregatorAbi);
-            const proxyAbi = new Interface(PositionOrderAbi);
+            const proxyAbi = new Interface(PositionOrderAbi);         
 
-            console.log("preinteraction", decodedExtension.preInteraction);
             if (decodedExtension.predicate.length > 2) {
                 // decode the trigger price from the predicate
                 let decodePredicate = "";

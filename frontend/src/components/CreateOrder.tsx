@@ -140,7 +140,7 @@ export const CreateOrder = ({ tokenId, manager }) => {
                     customData: '0x',
                 });
 
-                const makerTrait = MakerTraits.default().withNonce(BigInt(parseInt(Date.now() / 1000).toString()));
+                const makerTrait = MakerTraits.default().withNonce(BigInt(parseInt(Date.now() / 1000).toString())).withExtension().enablePreInteraction();
 
                 const order = new LimitOrder(orderInfo, makerTrait, extension);
 
