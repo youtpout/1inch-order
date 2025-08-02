@@ -240,6 +240,10 @@ export const OrderItem = ({ orderDto }) => {
                 return <span>Filled</span>;
             }
 
+             if (status === "cancel") {
+                return <span>Canceled</span>;
+            }
+
             if (!address) {
                 return <span>Connect to manage</span>;
             }

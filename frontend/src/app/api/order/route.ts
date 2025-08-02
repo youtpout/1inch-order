@@ -1,14 +1,13 @@
 import { orders } from "@/lib/schema";
-import { CustomAxiosProviderConnector } from "@/utils/AxiosProviderConnector";
-import { Address, Api, AuthError, Extension, LimitOrder, LimitOrderWithFee, Pager, Sdk } from "@1inch/limit-order-sdk"
+import { Address, Api, AuthError, Extension, LimitOrder, LimitOrderWithFee, MakerTraits, Pager, Sdk } from "@1inch/limit-order-sdk"
 import { arbitrum } from "@reown/appkit/networks";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { ethers } from "ethers";
+import { ethers, JsonRpcProvider } from "ethers";
 import { NextRequest, NextResponse } from "next/server";
 import postgres from "postgres";
-import { eq } from "drizzle-orm";
-import { chainIdArbitrum } from "@/utils/addresses";
-import axios from "axios";
+import { eq, desc } from "drizzle-orm";
+import { chainIdArbitrum, inchAggregator, rpcArbitrum } from "@/utils/addresses";
+import AggregatorAbi from "@/utils/AggregatorAbi.json";
 
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
@@ -18,9 +17,8 @@ export async function GET(req: NextRequest) {
 
     console.log("address", address);
 
-    const orderList = await db.select().from(orders);
+    const orderList = await db.select().from(orders).orderBy(desc(orders.createdAt));
     console.log("orders", orderList);
-
 
     if (orderList.length) {
         const completeOrders = orderList.map(o => {
@@ -112,26 +110,45 @@ export async function PUT(req: NextRequest) {
     const orderList = await db.select().from(orders).where(eq(orders.status, 'created'));
 
     if (orderList.length) {
+        const provider = new JsonRpcProvider(rpcArbitrum);
+        const inchContract = new ethers.Contract(
+            inchAggregator,
+            AggregatorAbi,
+            provider
+        )
+        const blockNumber = await provider.getBlockNumber();
+
+        const fromBlock = blockNumber - 20_000; // ou ton bloc de départ
+        const toBlock = "latest";
+
+        // OrderFilled
+        const orderFilledEvents = await inchContract.queryFilter(
+            inchContract.filters.OrderFilled(),
+            fromBlock,
+            toBlock
+        );
+
+        // BitInvalidatorUpdated
+        const bitInvalidatorEvents = await inchContract.queryFilter(
+            inchContract.filters.BitInvalidatorUpdated(),
+            fromBlock,
+            toBlock
+        );
 
         orderList.forEach(async (o) => {
             try {
-                const url = `https://api.1inch.dev/orderbook/v4.0/42161/events/${o.hash}`;
-
-                const config = {
-                    headers: {
-                        Authorization: `Bearer ${process.env.INCH_KEY}`,
-                    },
-                    params: {},
-                    paramsSerializer: {
-                        indexes: null,
-                    },
-                };
-                const response = await axios.get(url, config);
-                console.log(response.data);
-                const result = response.data[o.hash];
-                if (result.length) {
-                    const status = result[0].action;
-                    await db.update(orders).set({ status }).where(eq(orders.hash, o.hash));
+                const filled = orderFilledEvents.find(x => x.args.orderHash.toLowerCase() === o.hash.toLowerCase())
+                if (filled) {
+                    await db.update(orders).set({ status: "fill" }).where(eq(orders.hash, o.hash));
+                }
+                else {
+                    // bit invalidator use nonce
+                    const trait = new MakerTraits(BigInt(o.order.makerTraits));
+                    const nonce = trait.nonceOrEpoch() >> BigInt(8);
+                    const cancel = bitInvalidatorEvents.find(x => x.args.maker.toLowerCase() === o.order.maker.toLowerCase() && x.args.slotIndex === nonce)
+                    if (cancel) {
+                        await db.update(orders).set({ status: "cancel" }).where(eq(orders.hash, o.hash));
+                    }
                 }
             } catch (error) {
                 console.error(error);
