@@ -13,6 +13,8 @@ import AggregatorAbi from "@/utils/AggregatorAbi.json";
 import { FormControl, Select, MenuItem, SelectChangeEvent, InputLabel, TextField } from '@mui/material';
 import { ChangeEvent, useState } from 'react';
 import { NoUnderlineInput } from '@/utils/NoUnderlineInput';
+import INONFUNGIBLE_POSITION_MANAGER from '@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
+
 
 export const CreateOrder = ({ tokenId, manager }) => {
     // AppKit hook to get the address and check if the user is connected
@@ -125,10 +127,24 @@ export const CreateOrder = ({ tokenId, manager }) => {
 
                 const order = new LimitOrder(orderInfo, undefined, extension);
 
-                return;
+                const signer = await provider.getSigner();
+                const managerContract = new ethers.Contract(
+                    manager,
+                    INONFUNGIBLE_POSITION_MANAGER.abi,
+                    signer
+                );
+
+                // check nft allowance
+                const isApprovedForAll = await managerContract.isApprovedForAll(address, proxyAddress);
+                const approvedAddress = await managerContract.getApproved(tokenId);
+                const isAllowed = isApprovedForAll || approvedAddress.toLowerCase() === proxyAddress.toLowerCase();
+                if (!isAllowed) {
+                    const allowTx = await managerContract.approve(proxyAddress, tokenId);
+                    await allowTx.wait();
+                }
+
                 const typedData = order.getTypedData(chainId)
 
-                const signer = await provider.getSigner();
                 const signature = await signer.signTypedData(
                     typedData.domain,
                     { Order: typedData.types.Order },
@@ -218,8 +234,8 @@ export const CreateOrder = ({ tokenId, manager }) => {
                     }} style={{ width: "103px" }} defaultValue={triggerPrice} onChange={handleTriggerPrice} variant="outlined" />
                 </div>
             </div>
-            <div>
-                {`You will receive ${sellPrice} ${tokenName} if the price of ${triggerAssetName} is ${compare === "lt" ? "less than" : "greater than"} ${triggerPrice} $`}
+            <div style={{ height: "50px" }}>
+                {`You request to receive ${sellPrice} ${tokenName} if the price of ${triggerAssetName} is ${compare === "lt" ? "less than" : "greater than"} ${triggerPrice} $ for you position ${tokenId}`}
             </div>
             <div className='flex-row' style={{ justifyContent: "center" }}>
                 {!tokenId || tokenId === "0" ? <div>Select a position</div> : <button onClick={() => create()}>Create</button>}

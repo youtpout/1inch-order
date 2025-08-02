@@ -23,7 +23,7 @@ export default function Price({ tokenAddress, amount }: Props) {
             getPrice().then();
         }
     }, [tokenAddress, amount]);
-    console.log("tokenAddress", tokenAddress);
+
     if (!tokenAddress) {
         return (<></>);
     }
