@@ -1,4 +1,5 @@
 'use client'
+import { listTokens } from '@/utils/addresses';
 import { arbitrum } from '@reown/appkit/networks';
 import { useAppKitProvider, Provider } from '@reown/appkit/react';
 import IERC20 from '@uniswap/v3-periphery/artifacts/contracts/interfaces/IERC20Metadata.sol/IERC20Metadata.json';
@@ -13,6 +14,7 @@ type Props = {
 
 export default function Price({ tokenAddress, amount }: Props) {
     const [price, setPrice] = useState<string>("");
+    const [logo, setLogo] = useState<string>("/reown.svg");
     // AppKit hook to get the wallet provider
     const { walletProvider } = useAppKitProvider<Provider>("eip155");
 
@@ -40,8 +42,13 @@ export default function Price({ tokenAddress, amount }: Props) {
         const decimals = await tokenContract.decimals();
         const symbol = await tokenContract.symbol();
         const result = ethers.formatUnits(amount, decimals);
-        setPrice(`${result} ${symbol}`);
+        const token = listTokens.find(x => x.address.arbitrum?.toLowerCase() === tokenAddress.toLowerCase());
+        setPrice(`${result}`);
+        setLogo(token?.logo ?? "/reown.svg");
     };
 
-    return (<span>{price}</span>);
+    return (<div className='flex-row' style={{ alignItems: "center", justifyContent: "center" }}>
+        <span style={{ marginRight: "5px" }} >{price}</span>
+        <img height={30} width={30} src={logo}></img>
+    </div>);
 }

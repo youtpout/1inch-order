@@ -2,7 +2,7 @@
 
 import "./page.scss";
 import Image from 'next/image';
-import { Button, Card, CardActions, CardContent, FormControl, FormHelperText, Grid, InputBase, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, styled, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import { Button, Card, CardActions, CardContent, Checkbox, FormControl, FormHelperText, Grid, InputBase, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, styled, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { managers } from "@/utils/addresses";
 import {
@@ -24,6 +24,9 @@ import POOL_V3 from '@uniswap/v3-core/artifacts/contracts/UniswapV3Pool.sol/Unis
 import Position from "@/components/Position";
 import { arbitrum } from '@reown/appkit/networks'
 import { OrderItem } from "@/components/OrderItem";
+import OraclePrice from "@/components/OraclePrice";
+import { CreateOrder } from "@/components/CreateOrder";
+import { NoUnderlineInput } from "@/utils/NoUnderlineInput";
 
 export default function Home() {
   const [platform, setPlatform] = useState(managers[0].dex);
@@ -143,19 +146,6 @@ export default function Home() {
     }
   }
 
-
-  const NoUnderlineInput = styled(InputBase)({
-    '&:before': {
-      borderBottom: 'none',
-    },
-    '&:after': {
-      borderBottom: 'none',
-    },
-    '&:hover:not(.Mui-disabled):before': {
-      borderBottom: 'none',
-    },
-  });
-
   const handleOrderChange = (
     event: React.MouseEvent<HTMLElement>,
     newAlignment: string,
@@ -189,7 +179,9 @@ export default function Home() {
               <div className="position" style={{ height: "100%", overflow: "auto" }}>
                 {!list?.length && <div>No position found</div>}
                 {list.map(x => <div title="Click to select" key={x.index} onClick={() => setNftSelected(x.tokenId.toString())} className={nftSelected === x.tokenId.toString() ? "position-selected list-element metadata" : " list-element metadata"}>
-                  <Position nft={x} manager={manager} ></Position>
+                  <div className="flex-row">
+                    <Checkbox checked={nftSelected === x.tokenId.toString()} />
+                    <Position nft={x} manager={manager} ></Position></div>
                 </div>)}
               </div>
             </CardContent>
@@ -233,26 +225,37 @@ export default function Home() {
         </Stack>
       </Grid>
       <Grid size={4}>
+        <Stack spacing={2}>
+          <Card variant="outlined" style={{ maxHeight: "200px", minHeight: "200px" }}>
+            <CardContent>
+              <h3>Crypto price</h3>
+              <hr style={{ margin: "10px" }}></hr>
+              {walletProvider &&
+                <div>
+                  <OraclePrice tokenName="weth"></OraclePrice>
+                  <br></br>
+                  <OraclePrice tokenName="wbtc"></OraclePrice>
+                </div>
+              }
+            </CardContent>
+          </Card>
+          <Card variant="outlined" style={{ backgroundColor: "rgba(47, 138, 245, 0.16)" }} >
+            <CardContent>
+              <div>
+                Leave a margin between the trigger price and the sale price of at least 1% to give the buyer time to purchase your position...</div>
+            </CardContent>
+          </Card>
+          <Card variant="outlined" style={{ height: "400px" }}>
+            <CardContent>
+              <h3>Create Order</h3>
+              <hr style={{ margin: "10px" }}></hr>
+              <div>
+                <CreateOrder tokenId={nftSelected} manager={manager}></CreateOrder>
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card variant="outlined">
-          <CardContent>
-            <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
-              Word of the Day
-            </Typography>
-            <Typography variant="h5" component="div">
-
-            </Typography>
-            <Typography sx={{ color: 'text.secondary', mb: 1.5 }}>adjective</Typography>
-            <Typography variant="body2">
-              well meaning and kindly.
-              <br />
-              {'"a benevolent smile"'}
-            </Typography>
-          </CardContent>
-          <CardActions style={{ flex: 1 }}>
-            <Button size="small">Learn More</Button>
-          </CardActions>
-        </Card>
+        </Stack>
       </Grid>
     </Grid>
   );

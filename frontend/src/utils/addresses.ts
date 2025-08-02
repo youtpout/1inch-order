@@ -3,6 +3,7 @@
 export const proxyAddress = "0x99acae685b4d8d214a9a5db7775487e10167279a";
 export const inchAggregator = "0x111111125421ca6dc452d289314280a0f8842a65";
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+export const chainIdArbitrum = 42161;
 
 export const managers = [
     { dex: "Uniswap", manager: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88", factory: "0x1F98431c8aD98523631AE4a59f267346ea31F984" },
@@ -13,6 +14,8 @@ export type tokenInfo = {
     decimals: number,
     normalizedName: string,
     symbol: string,
+    logo: string,
+    altLogo: string,
     stablecoin: boolean,
     address: {
         arbitrum?: string,
@@ -28,6 +31,8 @@ export const usdc: tokenInfo = {
     normalizedName: "usdc",
     symbol: "USDC",
     stablecoin: true,
+    logo: "/usdc.png",
+    altLogo: "/usdc.png",
     address: {
         arbitrum: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
         base: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
@@ -42,6 +47,8 @@ export const weth: tokenInfo = {
     normalizedName: "weth",
     symbol: "WETH",
     stablecoin: false,
+    logo: "/weth.png",
+    altLogo: "/eth.png",
     address: {
         arbitrum: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
         base: "0x4200000000000000000000000000000000000006",
@@ -56,6 +63,8 @@ export const usdt: tokenInfo = {
     normalizedName: "usdt",
     symbol: "USDT",
     stablecoin: true,
+    logo: "/usdt.png",
+    altLogo: "/usdt.png",
     address: {
         arbitrum: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
         base: "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2",
@@ -70,6 +79,8 @@ export const dai: tokenInfo = {
     normalizedName: "dai",
     symbol: "DAI",
     stablecoin: true,
+    logo: "/dai.png",
+    altLogo: "/dai.png",
     address: {
         arbitrum: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
         base: "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
@@ -84,6 +95,8 @@ export const wbtc: tokenInfo = {
     normalizedName: "wbtc",
     symbol: "WBTC",
     stablecoin: false,
+    logo: "/wbtc.png",
+    altLogo: "/btc.png",
     address: {
         arbitrum: "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f",
         ethereum: "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",

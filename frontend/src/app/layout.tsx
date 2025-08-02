@@ -1,12 +1,20 @@
 import type { Metadata } from "next";
 
+import { Roboto } from 'next/font/google';
 import './globals.css';
 import ContextProvider from '@/context'
+
+const roboto = Roboto({
+  subsets: ['latin'], // ou ['latin-ext']
+  weight: ['300', '400', '500', '700'], // poids que tu veux
+  display: 'swap',
+})
+
 
 export const metadata: Metadata = {
   title: 'Position Order',
   description: 'Create stop loss order on your position',
-   icons: {
+  icons: {
     icon: '/favicon.webp',
   },
 };
@@ -18,7 +26,7 @@ export default async function RootLayout({
 }>) {
 
   return (
-    <html lang="en">
+    <html lang="en" className={roboto.className}>
       <body>
         <ContextProvider>{children}</ContextProvider>
       </body>

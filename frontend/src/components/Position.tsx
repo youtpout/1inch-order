@@ -36,10 +36,7 @@ export default function Position({ manager, nft, chain }: any) {
                     </h4>
                     <h3>
                         {nft.metadata.name}
-                    </h3>
-                    <div>
-                        <CreateOrder tokenId={nft.tokenId} manager={manager}></CreateOrder>
-                    </div>
+                    </h3>                  
                 </div>
             </div>
         </>
