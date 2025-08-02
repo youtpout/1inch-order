@@ -81,7 +81,6 @@ export default function Home() {
     } catch (error) {
       console.error("getOrders", error)
     }
-
   }
 
   async function getPositions() {
@@ -188,7 +187,6 @@ export default function Home() {
             </CardContent>
           </Card>
           <Card variant="elevation" style={{ maxHeight: "800px", minHeight: "400px" }} >
-
             <CardContent>
               <div className="flex-row" style={{ alignItems: "center", justifyContent: "space-between" }}>
                 <h3>Orders</h3>
@@ -204,7 +202,7 @@ export default function Home() {
                 </ToggleButtonGroup>
               </div>
               <hr style={{ margin: "10px" }}></hr>
-              <div style={{ height: "100%", overflow: "auto" }}>
+              <div style={{ maxHeight: "700px", overflow: "auto" }}>
                 <table className="table-orders" width="100%">
                   <thead>
                     <tr>

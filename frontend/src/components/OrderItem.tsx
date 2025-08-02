@@ -99,26 +99,41 @@ export const OrderItem = ({ orderDto }) => {
     };
 
     const getTriggerPrice = (extension: string) => {
-        const decodedExtension = Extension.decode(extension);
-        const aggregatorAbi = new Interface(AggregatorAbi);
-        const proxyAbi = new Interface(PositionOrderAbi);
-        if (decodedExtension.predicate.length > 2) {
-            // decode the trigger price from the predicate
-            const decodePredicate = aggregatorAbi.decodeFunctionData("lt", decodedExtension.predicate);
-            const arbitraryCall = aggregatorAbi.decodeFunctionData('arbitraryStaticCall', decodePredicate[1]);
-            const oracleCall = proxyAbi.decodeFunctionData('getPrice', arbitraryCall[1]);
+        try {
+            const decodedExtension = Extension.decode(extension);
+            const aggregatorAbi = new Interface(AggregatorAbi);
+            const proxyAbi = new Interface(PositionOrderAbi);
 
-            const price = decodePredicate[0];
-            const oracleAddress = oracleCall[0];
-            const findOracle = oracles.find(x => x.address.toLowerCase() === oracleAddress.toLowerCase());
-            if (findOracle) {
-                const token = listTokens.find(x => x.normalizedName === findOracle.token);
-                if (token) {
-                    const result = ethers.formatUnits(price, token.decimals);
-                    return `${token.normalizedName} > ${result} $`;
+            console.log("preinteraction", decodedExtension.preInteraction);
+            if (decodedExtension.predicate.length > 2) {
+                // decode the trigger price from the predicate
+                let decodePredicate = "";
+                let compare = "<";
+                try {
+                    decodePredicate = aggregatorAbi.decodeFunctionData("lt", decodedExtension.predicate);
+                } catch (error) {
+                    compare = ">";
+                    decodePredicate = aggregatorAbi.decodeFunctionData("gt", decodedExtension.predicate);
+                }
+
+                const arbitraryCall = aggregatorAbi.decodeFunctionData('arbitraryStaticCall', decodePredicate[1]);
+                const oracleCall = proxyAbi.decodeFunctionData('getPrice', arbitraryCall[1]);
+
+                const price = decodePredicate[0];
+                const oracleAddress = oracleCall[0];
+                const findOracle = oracles.find(x => x.address.toLowerCase() === oracleAddress.toLowerCase());
+                if (findOracle) {
+                    const token = listTokens.find(x => x.normalizedName === findOracle.token);
+                    if (token) {
+                        const result = ethers.formatUnits(price, token.decimals);
+                        return `${token.normalizedName} ${compare} ${result} $`;
+                    }
                 }
             }
+        } catch (error) {
+            console.error("decode predicate", error);
         }
+
         return "";
     };
     return (

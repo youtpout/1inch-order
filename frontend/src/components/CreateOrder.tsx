@@ -14,6 +14,7 @@ import { FormControl, Select, MenuItem, SelectChangeEvent, InputLabel, TextField
 import { ChangeEvent, useState } from 'react';
 import { NoUnderlineInput } from '@/utils/NoUnderlineInput';
 import INONFUNGIBLE_POSITION_MANAGER from '@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
+import { date } from 'drizzle-orm/mysql-core';
 
 
 export const CreateOrder = ({ tokenId, manager }) => {
@@ -96,7 +97,7 @@ export const CreateOrder = ({ tokenId, manager }) => {
                     proxyAbi.encodeFunctionData('getPrice', [oracle?.address, triggerAsset.decimals])
                 ]);
 
-                const predicate = aggregatorAbi.encodeFunctionData('lt', [predicatePrice, oracleCall]);
+                const predicate = aggregatorAbi.encodeFunctionData(compare, [predicatePrice, oracleCall]);
 
                 console.log("predicate", predicate);
 
@@ -125,7 +126,9 @@ export const CreateOrder = ({ tokenId, manager }) => {
                     customData: '0x',
                 });
 
-                const order = new LimitOrder(orderInfo, undefined, extension);
+                const makerTrait = MakerTraits.default().withNonce(BigInt(parseInt(Date.now() / 1000).toString()));
+
+                const order = new LimitOrder(orderInfo, makerTrait, extension);
 
                 const signer = await provider.getSigner();
                 const managerContract = new ethers.Contract(
