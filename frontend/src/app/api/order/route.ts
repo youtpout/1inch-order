@@ -10,7 +10,7 @@ import postgres from "postgres";
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const address = searchParams.get("address");
-    const client = postgres(process.env.SUPABASE_DB_URL!)
+    const client = postgres(process.env.POSTGRE_DB_URL!)
     const db = drizzle({ client });
 
     console.log("address", address);
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
         const hash = newLimitOrder.getOrderHash(arbitrum.id);
         const status = "created";
 
-        const client = postgres(process.env.SUPABASE_DB_URL!)
+        const client = postgres(process.env.POSTGRE_DB_URL!)
         const db = drizzle({ client });
         await db.insert(orders).values({
             hash,
