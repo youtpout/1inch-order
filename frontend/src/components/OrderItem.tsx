@@ -1,6 +1,6 @@
 'use client'
 
-import { getPositionUrl, inchAggregator, proxyAddress, weth, ZERO_ADDRESS } from "@/utils/addresses";
+import { getLogo, getPositionUrl, inchAggregator, proxyAddress, weth, ZERO_ADDRESS } from "@/utils/addresses";
 import { useDisconnect, useAppKit, useAppKitNetwork, Provider, useAppKitAccount, useAppKitNetworkCore, useAppKitProvider } from '@reown/appkit/react'
 import FormatPrice from "./FormatPrice";
 import { buildOrder, buildTakerTraits } from "@/utils/orderUtils";
@@ -17,6 +17,8 @@ export const OrderItem = ({ orderDto }) => {
     const { walletProvider } = useAppKitProvider<Provider>("eip155");
 
     const chainId = arbitrum.id;
+
+    console.log("extension", Extension.decode(orderDto.extension))
 
     const buy = async () => {
         try {
@@ -85,16 +87,31 @@ export const OrderItem = ({ orderDto }) => {
             }
         }
     }
+
+    const formatDate = (isoString) => {
+        const date = new Date(isoString);
+        return new Intl.DateTimeFormat('en-CA', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false,
+            timeZone: 'UTC',
+        }).format(date).replace(',', '');
+    };
     return (
         <tr>
             <td>
-                {orderDto.positionManager.toLowerCase() === "0xC36442b4a4522E871399CD717aBDD847Ab11FE88".toLowerCase() ?
-                    <img height={30} src="/uniswap.png"></img> :
-                    <img height={30} src="/cake.png"></img>}
+                <a className="flex-center" target="blank" href={getPositionUrl(orderDto.positionManager, orderDto.tokenId)}>
+                    <img height={30} src={getLogo(orderDto.positionManager)} />
+                    <span style={{ "textDecoration": "underline", marginLeft: "10px" }} >{orderDto.tokenId}</span>
+                </a>
             </td>
-            <td> <a style={{ "textDecoration": "underline", marginRight: "10px" }} target="blank" href={getPositionUrl(orderDto.manager, orderDto.tokenId)}>{orderDto.tokenId}</a></td>
             <td><FormatPrice tokenAddress={orderDto.buyAsset} amount={orderDto.price}></FormatPrice></td>
-            <td><button onClick={buy}>buy</button></td>
+            <td style={{ fontSize: "12px" }}><span>{formatDate(orderDto.createdAt)}</span></td>
+            <td height="50px">{address ? <button onClick={buy}>buy</button> : <span>Connect to manage</span>}</td>
         </tr >
     )
 }

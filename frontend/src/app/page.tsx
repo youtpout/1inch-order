@@ -44,6 +44,14 @@ export default function Home() {
     setPlatform(event.target.value);
   };
 
+  const selectNft = (tokenId: string) => {
+    setNftSelected(tokenId);
+    const target = document.getElementById('card-create-order');
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   useEffect(() => {
     if (address) {
       getPositions().then();
@@ -55,13 +63,6 @@ export default function Home() {
   useEffect(() => {
     getOrders().then();
   }, [filter])
-
-  const handleGetBalance = async () => {
-    const provider = new BrowserProvider(walletProvider, arbitrum.id);
-    const balance = await provider.getBalance(address!);
-    const eth = formatEther(balance);
-    console.log(`${eth} ETH`);
-  };
 
   function b64DecodeUnicode(str: string) {
     // Going backwards: from bytestream, to percent-encoding, to original string.
@@ -156,7 +157,7 @@ export default function Home() {
 
   return (
     <Grid container spacing={4} style={{ flex: 1 }}>
-      <Grid size={8}>
+      <Grid size={{ xs: 12, lg: 8 }}>
         <Stack spacing={2}>
           <Card variant="elevation" style={{ maxHeight: "800px", minHeight: "400px" }}   >
             <CardContent>
@@ -178,7 +179,7 @@ export default function Home() {
               </div>
               <div className="position" style={{ height: "100%", overflow: "auto" }}>
                 {!list?.length && <div>No position found</div>}
-                {list.map(x => <div title="Click to select" key={x.index} onClick={() => setNftSelected(x.tokenId.toString())} className={nftSelected === x.tokenId.toString() ? "position-selected list-element metadata" : " list-element metadata"}>
+                {list.map(x => <div title="Click to select" key={x.index} onClick={() => selectNft(x.tokenId.toString())} className={nftSelected === x.tokenId.toString() ? "position-selected list-element metadata" : " list-element metadata"}>
                   <div className="flex-row">
                     <Checkbox checked={nftSelected === x.tokenId.toString()} />
                     <Position nft={x} manager={manager} ></Position></div>
@@ -207,9 +208,9 @@ export default function Home() {
                 <table className="table-orders" width="100%">
                   <thead>
                     <tr>
-                      <th>Dex</th>
                       <th>Position Id</th>
                       <th>Price</th>
+                      <th>Created</th>
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -224,7 +225,7 @@ export default function Home() {
           </Card>
         </Stack>
       </Grid>
-      <Grid size={4}>
+      <Grid size={{ xs: 12, lg: 4 }}>
         <Stack spacing={2}>
           <Card variant="outlined" style={{ height: "160px" }}>
             <CardContent>
@@ -243,7 +244,7 @@ export default function Home() {
                 Leave a margin between the trigger price and the sale price of at least 1% to give the buyer time to purchase your position...</div>
             </CardContent>
           </Card>
-          <Card variant="outlined" style={{ height: "400px" }}>
+          <Card id="card-create-order" variant="outlined" style={{ height: "400px" }}>
             <CardContent>
               <h3>Create Order</h3>
               <hr style={{ margin: "10px" }}></hr>

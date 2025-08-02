@@ -123,3 +123,11 @@ export function getPositionUrl(manager: string, nftId: string) {
         return `https://pancakeswap.finance/liquidity/${nftId}?chain=arb`;
     }
 }
+
+export function getLogo(manager: string) {
+    if (manager?.toLowerCase() === "0xC36442b4a4522E871399CD717aBDD847Ab11FE88".toLowerCase()) {
+        return "/uniswap.png";
+    } else {
+        return "/cake.png";
+    }
+}
