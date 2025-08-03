@@ -1,6 +1,6 @@
 'use client'
 
-import { getLogo, getPositionUrl, inchAggregator, listTokens, oracles, proxyAddress, weth, ZERO_ADDRESS } from "@/utils/addresses";
+import { getLogo, getPositionUrl, inchAggregator, listTokens, oracles, proxyAddress, shortenAddress, weth, ZERO_ADDRESS } from "@/utils/addresses";
 import { useDisconnect, useAppKit, useAppKitNetwork, Provider, useAppKitAccount, useAppKitNetworkCore, useAppKitProvider } from '@reown/appkit/react'
 import FormatPrice from "./FormatPrice";
 import { buildOrder, buildTakerTraits } from "@/utils/orderUtils";
@@ -85,6 +85,11 @@ export const OrderItem = ({ orderDto }) => {
                 setMessage("Order filled");
                 setSeverity("success");
                 setOpen(true);
+
+                // update order status
+                fetch("/api/order", { method: "PUT" }).then().catch(err => {
+                    console.error("Error PUT", err);
+                });
             }
         } catch (error) {
             console.error("Failed to buy order:", error);
@@ -126,7 +131,7 @@ export const OrderItem = ({ orderDto }) => {
         try {
             if (address) {
                 const provider = new BrowserProvider(walletProvider, arbitrum.id);
-                const signer = await provider.getSigner();              
+                const signer = await provider.getSigner();
 
                 const inchContract = new ethers.Contract(
                     inchAggregator,
@@ -144,6 +149,11 @@ export const OrderItem = ({ orderDto }) => {
                 setMessage("Order canceled");
                 setSeverity("success");
                 setOpen(true);
+
+                // update order status
+                fetch("/api/order", { method: "PUT" }).then().catch(err => {
+                    console.error("Error PUT", err);
+                });
             }
         } catch (error) {
             console.error("Failed to buy order:", error);
@@ -203,7 +213,7 @@ export const OrderItem = ({ orderDto }) => {
 
             if (decodedExtension.predicate.length > 2) {
                 // decode the trigger price from the predicate
-                let decodePredicate = "";
+                let decodePredicate: any[] = [];
                 let compare = "<";
                 try {
                     decodePredicate = aggregatorAbi.decodeFunctionData("lt", decodedExtension.predicate);
@@ -235,12 +245,11 @@ export const OrderItem = ({ orderDto }) => {
 
     const getAction = (status: string) => {
         try {
-            console.log("status", status)
             if (status === "fill") {
                 return <span>Filled</span>;
             }
 
-             if (status === "cancel") {
+            if (status === "cancel") {
                 return <span>Canceled</span>;
             }
 
@@ -270,6 +279,7 @@ export const OrderItem = ({ orderDto }) => {
                     <span style={{ "textDecoration": "underline", marginLeft: "10px" }} >{orderDto.tokenId}</span>
                 </a>
             </td>
+            <td><span title={orderDto.order.maker}>{shortenAddress(orderDto.order.maker)}</span></td>
             <td><FormatPrice tokenAddress={orderDto.buyAsset} amount={orderDto.price}></FormatPrice></td>
             <td><span>{getTriggerPrice(orderDto.extension)}</span></td>
             <td style={{ fontSize: "12px" }}><span>{formatDate(orderDto.createdAt)}</span></td>

@@ -223,6 +223,7 @@ export default function Home() {
                   <thead>
                     <tr>
                       <th>Position Id</th>
+                      <th>Maker</th>
                       <th>Price</th>
                       <th>Trigger</th>
                       <th>Created</th>
