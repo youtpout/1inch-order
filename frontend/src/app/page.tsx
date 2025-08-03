@@ -42,6 +42,8 @@ export default function Home() {
   const { walletProvider } = useAppKitProvider<Provider>("eip155");
 
   const handleChange = (event: SelectChangeEvent) => {
+    // cancel selection
+    setNftSelected("0");
     setPlatform(event.target.value);
   };
 
