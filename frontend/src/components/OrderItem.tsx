@@ -9,9 +9,11 @@ import { arbitrum } from "@reown/appkit/networks";
 import { BrowserProvider, ethers, Interface } from "ethers";
 import AggregatorAbi from "@/utils/AggregatorAbi.json";
 import IERC20 from '@uniswap/v3-periphery/artifacts/contracts/interfaces/IERC20Metadata.sol/IERC20Metadata.json';
+import IWETH from '@uniswap/v3-periphery/artifacts/contracts/interfaces/external/IWETH9.sol/IWETH9.json';
 import PositionOrderAbi from "@/utils/PositionOrderAbi.json";
 import { Alert, AlertColor, Snackbar, SnackbarCloseReason } from "@mui/material";
 import { useState } from "react";
+import { useConfirmDialog } from "@/hooks/useConfirmDialog";
 
 
 export const OrderItem = ({ orderDto }) => {
@@ -20,6 +22,7 @@ export const OrderItem = ({ orderDto }) => {
     const [open, setOpen] = useState(false);
     const [message, setMessage] = useState("");
     const [severity, setSeverity] = useState<AlertColor>("success");
+    const { confirm, ConfirmDialog } = useConfirmDialog();
 
     const handleClose = (
         event?: React.SyntheticEvent | Event,
@@ -53,6 +56,35 @@ export const OrderItem = ({ orderDto }) => {
                     signer
                 );
 
+                const balance = await tokenContract.balanceOf(address);
+
+                if (balance < price) {
+                    const token = listTokens.find(x => x.address.arbitrum?.toLowerCase() === orderDto.buyAsset.toLowerCase());
+
+                    let deposit = false;
+                    if (token?.normalizedName === "weth") {
+                        deposit = await confirm({
+                            message: "Would you transform your ETH into WETH?",
+                        });
+                        if (deposit) {
+                            const wethContract = new ethers.Contract(
+                                orderDto.buyAsset,
+                                IWETH.abi,
+                                signer
+                            );
+                            const tx = await wethContract.deposit({ value: price });
+                            await tx.wait();
+                        }
+                    }
+
+                    if (!deposit) {
+                        setMessage(`Insufficient ${token?.symbol} balance`);
+                        setSeverity("warning");
+                        setOpen(true);
+                        return;
+                    }
+                }
+
                 const allowance = await tokenContract.allowance(address, proxyAddress);
 
                 if (allowance < price) {
@@ -67,7 +99,7 @@ export const OrderItem = ({ orderDto }) => {
                 const takerTraits = buildTakerTraits({
                     threshold: price,
                     makingAmount: true,
-                    extension: orderDto.extension,
+                    extension: orderDto.extension
                 });
 
                 const order = { ...orderDto.order, extension: orderDto.extension };
@@ -80,7 +112,8 @@ export const OrderItem = ({ orderDto }) => {
 
                 const { r, yParityAndS: vs } = ethers.Signature.from(orderDto.signature);
                 const fillTx = await inchContract.fillOrderArgs(order, r, vs, price, takerTraits.traits, takerTraits.args);
-                await fillTx.wait()
+                await fillTx.wait();
+
 
                 setMessage("Order filled");
                 setSeverity("success");
@@ -284,6 +317,7 @@ export const OrderItem = ({ orderDto }) => {
             <td><span>{getTriggerPrice(orderDto.extension)}</span></td>
             <td style={{ fontSize: "12px" }}><span>{formatDate(orderDto.createdAt)}</span></td>
             <td height="50px">{getAction(orderDto.status)}
+                {ConfirmDialog}
                 <Snackbar
                     open={open}
                     color="primary"
