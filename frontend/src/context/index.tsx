@@ -15,7 +15,7 @@ const metadata = {
   name: 'Position Order',
   description: 'Create stop loss order on your position',
   url: 'https://1inch-order.vercel.app', // origin must match your domain & subdomain
-  icons: ['https://avatars.githubusercontent.com/u/179229932']
+  icons: ['https://1inch-order.vercel.app/logo.png']
 }
 
 // Create the modal

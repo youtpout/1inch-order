@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   title: 'Position Order',
   description: 'Create stop loss order on your position',
   icons: {
-    icon: '/favicon.webp',
+    icon: '/logo.png',
   },
 };
 
