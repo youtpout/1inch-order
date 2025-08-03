@@ -312,7 +312,9 @@ export const OrderItem = ({ orderDto }) => {
                     <span style={{ "textDecoration": "underline", marginLeft: "10px" }} >{orderDto.tokenId}</span>
                 </a>
             </td>
-            <td><span title={orderDto.order.maker}>{shortenAddress(orderDto.order.maker)}</span></td>
+            <td><span style={{
+                wordBreak: 'break-word', overflowWrap: 'break-word', display: 'inline-block', // utile parfois pour limiter les débordements
+            }} title={orderDto.order.maker}>{shortenAddress(orderDto.order.maker)}</span></td>
             <td><FormatPrice tokenAddress={orderDto.buyAsset} amount={orderDto.price}></FormatPrice></td>
             <td><span>{getTriggerPrice(orderDto.extension)}</span></td>
             <td style={{ fontSize: "12px" }}><span>{formatDate(orderDto.createdAt)}</span></td>

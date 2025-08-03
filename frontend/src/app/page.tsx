@@ -260,7 +260,7 @@ export default function Home() {
                 Leave a margin between the trigger price and the sale price of at least 1% to give the buyer time to purchase your position...</div>
             </CardContent>
           </Card>
-          <Card id="card-create-order" variant="outlined" style={{ height: "400px" }}>
+          <Card id="card-create-order" variant="outlined" style={{ minHeight: "400px" }}>
             <CardContent>
               <h3>Create Order</h3>
               <hr style={{ margin: "10px" }}></hr>
